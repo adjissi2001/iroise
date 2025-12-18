@@ -238,6 +238,12 @@
     <div class="container">
         <h2>Liste des bénéficiaires</h2>
 
+        @if(!empty($errorMessage))
+            <div style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;padding:12px 16px;border-radius:10px;margin-bottom:16px;text-align:left;">
+                {{ $errorMessage }}
+            </div>
+        @endif
+
         @if(!empty($beneficiaires))
             <table>
                 <thead>

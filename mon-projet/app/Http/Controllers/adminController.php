@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
@@ -14,10 +15,21 @@ class AdminController extends Controller
             return redirect('/login')->withErrors(['auth' => 'Accès refusé.']);
         }
 
-        // 🔹 Requête SQL pour récupérer les bénéficiaires
-        $beneficiaires = DB::select('SELECT * FROM beneficiaire');
+        try {
+            // 🔹 Requête SQL pour récupérer les bénéficiaires
+            $beneficiaires = DB::select('SELECT * FROM beneficiaire');
+            return view('admin.administration', [
+                'beneficiaires' => $beneficiaires,
+                'errorMessage' => null,
+            ]);
+        } catch (\Throwable $e) {
+            // 🚨 En cas d'erreur de connexion ou requête, journaliser et afficher un message clair
+            Log::error('Erreur lors de la récupération des bénéficiaires : ' . $e->getMessage());
 
-        // 🔹 Envoi des résultats à la vue
-        return view('admin.administration', ['beneficiaires' => $beneficiaires]);
+            return view('admin.administration', [
+                'beneficiaires' => [],
+                'errorMessage' => "Impossible de récupérer la liste des bénéficiaires pour le moment (problème de connexion à la base de données).",
+            ]);
+        }
     }
 }
