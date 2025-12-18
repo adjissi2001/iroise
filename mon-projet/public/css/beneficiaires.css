@@ -1,0 +1,90 @@
+/* DataTables filters */
+thead input {
+    width: 100%;
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 13px;
+}
+
+/* Layout */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(145deg, #eef2ff, #f8fafc);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    background: #ffffff;
+    margin: 40px auto;
+    padding: 40px;
+    border-radius: 18px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+    width: 85%;
+    max-width: 1100px;
+    text-align: center;
+}
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+th {
+    padding: 14px;
+    background: #888892;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+/* Actions buttons */
+.action-btn {
+    background: #f0f4ff;
+    border: none;
+    padding: 8px 10px;
+    margin: 0 4px;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 38px;
+    height: 38px;
+}
+
+/* Edit */
+.btn-edit {
+    background: transparent;
+}
+.btn-edit i {
+    color: #007bff;
+}
+.btn-edit:hover {
+    background: transparent;
+    transform: scale(1.2);
+}
+.btn-edit:hover i {
+    color: #0056b3;
+}
+
+/* Delete */
+.btn-delete {
+    background: transparent;
+}
+.btn-delete i {
+    color: #dc3545;
+}
+.btn-delete:hover {
+    background: transparent;
+    transform: scale(1.2);
+}
+.btn-delete:hover i {
+    color: #c82333;
+}

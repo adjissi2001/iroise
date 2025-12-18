@@ -49,7 +49,6 @@ class BeneficiaireController extends Controller
         $b->update([
             'nom' => $request->nom,
             'prenom' => $request->prenom,
-            'email' => $request->email,
             'num_tel' => $request->num_tel,
             'date_naissance' => $request->date_naissance,
         ]);
