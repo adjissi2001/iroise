@@ -4,8 +4,20 @@
     <meta charset="UTF-8">
     <title>Espace Administrateur - Iroise</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
 
     <style>
+
+        
+        thead input {
+            width: 100%;
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            font-size: 13px;
+        }
+
         html, body {
             height: 100%;
             margin: 0;
@@ -245,29 +257,31 @@
         @endif
 
         @if(!empty($beneficiaires))
-            <table>
-                <thead>
+            <table id="beneficiairesTable">
+               <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Nom</th>
                         <th>Prénom</th>
                         <th>Date de naissance</th>
                         <th>Téléphone</th>
-                        <th>Email</th>
-                        <th>Actions</th> <!-- ➕ Nouvelle colonne -->
+                        <th>Actions</th>
                     </tr>
-                </thead>
+                    <tr>
+                        <th><input type="text" placeholder="Nom" /></th>
+                        <th><input type="text" placeholder="Prénom" /></th>
+                        <th><input type="text" placeholder="Date" /></th>
+                        <th><input type="text" placeholder="Téléphone" /></th>
+                        <th></th>
+                    </tr>
+                    </thead>
 
                 <tbody>
                     @foreach ($beneficiaires as $b)
                         <tr>
-                            <td data-label="ID">{{ $b->id_beneficiaire }}</td>
                             <td data-label="Nom">{{ $b->nom }}</td>
                             <td data-label="Prénom">{{ $b->prenom }}</td>
                             <td data-label="Date de naissance">{{ $b->date_naissance }}</td>
                             <td data-label="Téléphone">{{ $b->num_tel }}</td>
-                            <td data-label="Email">{{ $b->email }}</td>
-
                       <td data-label="Actions" style="text-align: center;">
 
                             <!-- Modifier -->
@@ -302,6 +316,51 @@
 
     {{-- 🔹 Inclusion du bas de page --}}
     @include('layouts.bas')
+
+    <!-- jQuery (obligatoire pour DataTables) -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+
+<script>
+$(document).ready(function () {
+    $('#beneficiairesTable').DataTable({
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.8/i18n/fr-FR.json"
+        },
+        pageLength: 10,
+        lengthMenu: [5, 10, 25, 50],
+        ordering: true,
+        searching: true,
+        responsive: true
+    });
+});
+</script>
+
+<script>
+$(document).ready(function () {
+
+    let table = $('#beneficiairesTable').DataTable({
+        orderCellsTop: true,
+        fixedHeader: true,
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.8/i18n/fr-FR.json"
+        }
+    });
+
+    // Recherche par colonne
+    $('#beneficiairesTable thead tr:eq(1) th').each(function (i) {
+        $('input', this).on('keyup change clear', function () {
+            if (table.column(i).search() !== this.value) {
+                table.column(i).search(this.value).draw();
+            }
+        });
+    });
+
+});
+</script>
+
 
 </body>
 </html>
