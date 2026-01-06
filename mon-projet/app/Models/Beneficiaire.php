@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Beneficiaire extends Model
 {
@@ -22,5 +23,14 @@ class Beneficiaire extends Model
         'email',
         'num_tel',
         'date_naissance',
+        'user_id',
     ];
+
+    /**
+     * Relation avec l'utilisateur
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }

@@ -13,8 +13,8 @@ class BeneficiaireController extends Controller
      */
     public function index()
     {
-        // On peut utiliser Eloquent pour plus de clarté
-        $beneficiaires = Beneficiaire::all();
+        // Afficher uniquement les bénéficiaires de l'utilisateur connecté
+        $beneficiaires = auth()->user()->beneficiaires;
 
         return view('beneficiaire.index', compact('beneficiaires'));
     }
@@ -24,7 +24,8 @@ class BeneficiaireController extends Controller
      */
     public function show($id)
     {
-        $beneficiaire = Beneficiaire::where('id_beneficiaire', $id)->first();
+        // Vérifier que le bénéficiaire appartient à l'utilisateur connecté
+        $beneficiaire = auth()->user()->beneficiaires()->where('id_beneficiaire', $id)->first();
 
         if (!$beneficiaire) {
             return redirect()->back()->with('error', 'Bénéficiaire introuvable.');

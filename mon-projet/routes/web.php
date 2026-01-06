@@ -1,39 +1,44 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AutoController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BeneficiaireController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BienvenueController;
+use Illuminate\Support\Facades\Route;
 
+// 🏠 Page d'accueil publique
+Route::get('/', [BienvenueController::class, 'index'])->name('home');
+Route::get('/bienvenue', [BienvenueController::class, 'index'])->name('bienvenue');
 
-Route::get('/welcome', function () {
-    return view('welcome');
+// 📊 Dashboard (authentification requise)
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+// 👤 Routes du profil utilisateur (authentification requise)
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/bienvenue', [App\Http\Controllers\BienvenueController::class, 'index']);
+// 🏥 Routes pour les bénéficiaires (authentification requise)
+Route::middleware('auth')->group(function () {
+    // Liste des bénéficiaires
+    Route::get('/beneficiaires', [BeneficiaireController::class, 'index'])->name('beneficiaire.index');
+    
+    // Détail d'un bénéficiaire
+    Route::get('/beneficiaires/{id}', [BeneficiaireController::class, 'show'])->name('beneficiaire.show');
+    
+    // Mise à jour d'un bénéficiaire
+    Route::put('/beneficiaires/{id}', [BeneficiaireController::class, 'updateSql'])->name('beneficiaire.update');
+    
+    // Suppression d'un bénéficiaire
+    Route::delete('/beneficiaires/{id}', [BeneficiaireController::class, 'destroy'])->name('beneficiaire.destroy');
+    
+    // Interface d'administration
+    Route::get('/administration', [AdminController::class, 'selectBeneficiaires'])->name('admin.beneficiaires');
+});
 
-Route::get('/register', [RegisterController::class, 'inscriptionForm'])->name('register');
-
-
-Route::get('/login', [AutoController::class, 'showLoginForm'])->name('login');
-
-Route::post('/login', [AutoController::class, 'login'])->name('login.post');
-
-/*Route::get('/administration', function () {
-    if (!session('admin')) {
-        return redirect('/login')->withErrors(['auth' => 'Accès refusé.']);
-    }
-
-    return view('admin.administration');
-})->name('dashboard');*/
-
-Route::get('/administration', [AdminController::class, 'selectBeneficiaires'])->name('administration');
-
-
-Route::get('/beneficiaires', [BeneficiaireController::class, 'index'])->name('beneficiaire.index');
-// Actions SQL
-Route::post('/beneficiaire/update/{id}', [BeneficiaireController::class, 'updateSql'])->name('beneficiaire.updateSql');
-// Keep existing POST-delete for compatibility, but prefer DELETE below
-Route::post('/beneficiaire/delete/{id}', [BeneficiaireController::class, 'deleteSql'])->name('beneficiaire.deleteSql');
-Route::delete('/beneficiaire/{id}', [BeneficiaireController::class, 'destroy'])->name('beneficiaire.destroy');
+// 🔐 Routes d'authentification Breeze
+require __DIR__.'/auth.php';

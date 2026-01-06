@@ -193,8 +193,12 @@
     <header>
         <h1 style = " color : black; ">Iroise Association</h1>
         <nav>
-            <a class="btn btn-login" onclick="showLogin()" >Connexion</a>
-            <a class="btn btn-login" onclick="showLogin()">Inscription</a>
+            @auth
+                <a href="{{ route('dashboard') }}" class="btn btn-login">Tableau de bord</a>
+            @else
+                <a href="{{ route('login') }}" class="btn btn-login">Connexion</a>
+                <a href="{{ route('register') }}" class="btn btn-register">Inscription</a>
+            @endauth
         </nav>
     </header>
 
@@ -203,38 +207,10 @@
         <p>Connectez-vous ou inscrivez-vous pour accéder à votre espace personnel.</p>
 
         <div class="btn-container">
-
-            <a class="btn btn-login" onclick="showLogin()">Connexion</a>
+            <a href="{{ route('login') }}" class="btn btn-login">Connexion</a>
             <a href="{{ route('register') }}" class="btn btn-register">S'inscrire</a>
-
-
-    </div>
-            <div id="login-form" style="display: none; width: 100%;">
-        <form method="POST" action="{{ route('login.post') }}" style="width: 100%;">
-            @csrf
-            <h2>Connexion Admin</h2>
-
-            <input type="email" name="email" placeholder="Adresse e-mail" required>
-            <input type="password" name="password" placeholder="Mot de passe" required>
-
-            @error('email')
-                <p class="error">{{ $message }}</p>
-            @enderror
-
-            <button type="submit">Se connecter</button>
-        </form>
-    </div>
-
-
-
-</main>
-<script>
-function showLogin() {
-    document.querySelector(".btn-container").style.display = "none";      // cacher les boutons
-    document.querySelector("main p").style.display = "none";             // cacher le texte
-    document.getElementById("login-form").style.display = "block";       // afficher le formulaire
-}
-</script>
+        </div>
+    </main>
 
 </body>
 </html>

@@ -5,15 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
     public function selectBeneficiaires()
     {
-        // Vérifie si l'admin est connecté
-        if (!session('admin')) {
-            return redirect('/login')->withErrors(['auth' => 'Accès refusé.']);
-        }
+        // Vérifie si l'utilisateur est authentifié (géré par middleware auth)
+        // Plus besoin de vérification manuelle car le middleware s'en charge
 
         try {
             // 🔹 Requête SQL pour récupérer les bénéficiaires
