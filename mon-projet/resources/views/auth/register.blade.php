@@ -1,4 +1,6 @@
 <x-guest-layout>
+    <h2 class="auth-title">Inscription</h2>
+    
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
