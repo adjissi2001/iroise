@@ -18,6 +18,11 @@
                     <x-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
                         {{ __('Mes Bénéficiaires') }}
                     </x-nav-link>
+                    @if(auth()->user()->is_admin)
+                        <x-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
+                            {{ __('Utilisateurs') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 

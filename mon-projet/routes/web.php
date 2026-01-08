@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BeneficiaireController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BienvenueController;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +39,15 @@ Route::middleware('auth')->group(function () {
     
     // Interface d'administration
     Route::get('/administration', [AdminController::class, 'selectBeneficiaires'])->name('admin.beneficiaires');
+});
+
+// 👥 Routes pour les utilisateurs (admin seulement)
+Route::middleware(['auth'])->group(function () {
+    // Liste des utilisateurs
+    Route::get('/utilisateurs', [UserController::class, 'index'])->name('user.index');
+    
+    // Détail d'un utilisateur
+    Route::get('/utilisateurs/{id}', [UserController::class, 'show'])->name('user.show');
 });
 
 // 🔐 Routes d'authentification Breeze
