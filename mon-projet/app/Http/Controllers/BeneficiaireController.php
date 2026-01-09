@@ -85,4 +85,47 @@ class BeneficiaireController extends Controller
 
         return redirect()->back()->with('success', 'Bénéficiaire supprimé.');
     }
+
+
+
+
+    private function authorizeRole()
+        {
+            $roleProfil = optional(auth()->user()->profil)->role;
+
+            if (!in_array($roleProfil, ['referent', 'benevole'])) {
+                abort(403, 'Accès refusé.');
+            }
+        }
+
+        public function create()
+        {
+            $this->authorizeRole();
+            return view('beneficiaire.create');
+        }
+
+        public function store(Request $request)
+        {
+            $this->authorizeRole();
+
+            $request->validate([
+                'nom' => ['required', 'string', 'max:100'],
+                'prenom' => ['required', 'string', 'max:100'],
+                'date_naissance' => ['required', 'date'],
+                'num_tel' => ['nullable', 'string', 'max:20'],
+            ]);
+
+            \DB::table('beneficiaire')->insert([
+                'user_id' => auth()->id(),
+                'nom' => $request->nom,
+                'prenom' => $request->prenom,
+                'date_naissance' => $request->date_naissance,
+                'num_tel' => $request->num_tel,
+                'actif' => 1,
+                // date_inscription auto
+            ]);
+
+            return redirect()->route('beneficiaire.index')->with('success', 'Bénéficiaire ajouté avec succès.');
+        }
+
 }

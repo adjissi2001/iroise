@@ -7,6 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BienvenueController;
 use Illuminate\Support\Facades\Route;
 
+
 // 🏠 Page d'accueil publique
 Route::get('/', [BienvenueController::class, 'index'])->name('home');
 Route::get('/bienvenue', [BienvenueController::class, 'index'])->name('bienvenue');
@@ -52,3 +53,10 @@ Route::middleware(['auth'])->group(function () {
 
 // 🔐 Routes d'authentification Breeze
 require __DIR__.'/auth.php';
+
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/beneficiaires/create', [BeneficiaireController::class, 'create'])->name('beneficiaire.create');
+    Route::post('/beneficiaires', [BeneficiaireController::class, 'store'])->name('beneficiaire.store');
+});

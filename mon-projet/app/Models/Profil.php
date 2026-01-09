@@ -21,6 +21,8 @@ class Profil extends Model
         'actif',
     ];
 
+
+    
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class, 'user_id', 'id');

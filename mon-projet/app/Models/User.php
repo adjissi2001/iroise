@@ -55,4 +55,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Beneficiaire::class);
     }
+
+    public function profil()
+    {
+        return $this->hasOne(\App\Models\Profil::class, 'user_id', 'id');
+    }
+
 }

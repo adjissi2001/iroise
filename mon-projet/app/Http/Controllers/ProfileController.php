@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
+
 
 class ProfileController extends Controller
 {
@@ -40,21 +42,29 @@ class ProfileController extends Controller
     /**
      * Delete the user's account.
      */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
 
-        $user = $request->user();
+public function destroy(Request $request): RedirectResponse
+{
+    $request->validateWithBag('userDeletion', [
+        'password' => ['required', 'current_password'],
+    ]);
 
-        Auth::logout();
+    $user = $request->user();
 
+    DB::transaction(function () use ($user) {
+        // Supprimer d'abord les données liées (profil)
+        \App\Models\Profil::where('user_id', $user->id)->delete();
+
+        // Ensuite supprimer le compte
         $user->delete();
+    });
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+    Auth::logout();
 
-        return Redirect::to('/');
-    }
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return Redirect::to('/');
+}
+
 }

@@ -18,11 +18,23 @@
                     <x-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
                         {{ __('Mes Bénéficiaires') }}
                     </x-nav-link>
+
+                    @php
+                        $roleProfil = optional(auth()->user()->profil)->role; // referent / benevole / bienfaiteur
+                    @endphp
+
+                    @if(in_array($roleProfil, ['referent', 'benevole']))
+                        <x-nav-link :href="route('beneficiaire.create')" :active="request()->routeIs('beneficiaire.create')">
+                            {{ __('Ajouter un bénéficiaire') }}
+                        </x-nav-link>
+                    @endif
+
                     @if(auth()->user()->is_admin)
                         <x-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
                             {{ __('Utilisateurs') }}
                         </x-nav-link>
                     @endif
+
                 </div>
             </div>
 
