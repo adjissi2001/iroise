@@ -2,23 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    public function __construct(private readonly UserService $userService)
+    {
+    }
+
     /**
      * Affichage de la liste des utilisateurs
      */
     public function index()
     {
-        // Vérifier que l'utilisateur est admin
-        if (!auth()->user()->is_admin) {
+        $authUser = auth()->user();
+        if (!$this->userService->canManageUsers($authUser)) {
             return redirect()->back()->with('error', 'Accès non autorisé.');
         }
 
-        // Récupérer tous les utilisateurs
-        $users = User::all();
+        $users = $this->userService->listAll();
 
         return view('user.index', compact('users'));
     }
@@ -28,12 +31,16 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        // Vérifier que l'utilisateur est admin
-        if (!auth()->user()->is_admin) {
+        $authUser = auth()->user();
+        if (!$this->userService->canManageUsers($authUser)) {
             return redirect()->back()->with('error', 'Accès non autorisé.');
         }
 
-        $user = User::findOrFail($id);
+        $user = $this->userService->find((int) $id);
+
+        if (!$user) {
+            abort(404);
+        }
 
         return view('user.show', compact('user'));
     }
