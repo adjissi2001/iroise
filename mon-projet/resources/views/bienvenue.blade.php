@@ -20,7 +20,7 @@
 
         /* En-tête avec glassmorphism */
         .header-welcome {
-            background: rgba(202, 228, 219, 0.9);
+            background: rgba(150, 161, 158, 0.9);
             backdrop-filter: blur(10px);
             padding: 20px 40px;
             display: flex;

@@ -21,11 +21,11 @@ class AdminController extends Controller
                 'errorMessage' => null,
             ]);
         } catch (\Throwable $e) {
-            Log::error('Erreur lors de la récupération des bénéficiaires : ' . $e->getMessage());
+            Log::error('Erreur lors de la récupération des benéficiaires : ' . $e->getMessage());
 
             return view('admin.administration', [
                 'beneficiaires' => [],
-                'errorMessage' => "Impossible de récupérer la liste des bénéficiaires pour le moment (problème de connexion à la base de données).",
+                'errorMessage' => "impossible de récupérer la liste des bénéficiaires pour le moment (problème de connexion à la base de données).",
             ]);
         }
     }
