@@ -28,7 +28,23 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Redirection selon le rôle dans la table profil
+        $user = auth()->user();
+        $profil = $user->profil;
+        $role = $profil ? $profil->role : null;
+
+        \Log::info('User Login Debug', [
+            'user_id' => $user->id,
+            'profil' => $profil,
+            'role' => $role,
+        ]);
+
+        return match($role) {
+            'admin' => redirect()->intended(route('admin.beneficiaires', absolute: false)),
+            'benevole' => redirect()->intended(route('benevole.index', absolute: false)),
+            'referent' => redirect()->intended(route('referent.index', absolute: false)),
+            default => redirect()->intended(route('dashboard', absolute: false)),
+        };
     }
 
     /**

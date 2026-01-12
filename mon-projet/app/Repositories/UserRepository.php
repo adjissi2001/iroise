@@ -9,7 +9,7 @@ class UserRepository
 {
     public function all(): Collection
     {
-        return User::all();
+        return User::with('profil')->get();
     }
 
     public function find(int $id): ?User
