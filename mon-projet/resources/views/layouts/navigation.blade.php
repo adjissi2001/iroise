@@ -15,15 +15,25 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
-                        {{ __('Mes Bénéficiaires') }}
-                    </x-nav-link>
+                    @if(!auth()->user()->is_admin)
+                        <x-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
+                            {{ __('Mes Bénéficiaires') }}
+                        </x-nav-link>
+                    @endif
 
                     @php
                         $roleProfil = optional(auth()->user()->profil)->role; // referent / benevole / bienfaiteur
                     @endphp
 
                     @if(auth()->user()->is_admin)
+                        <x-nav-link :href="route('admin.beneficiaires')" :active="request()->routeIs('admin.beneficiaires')">
+                            {{ __('Bénéficiaires') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.missions.index')" :active="request()->routeIs('admin.missions.*')">
+                            {{ __('Missions') }}
+                        </x-nav-link>
+
                         <x-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
                             {{ __('Utilisateurs') }}
                         </x-nav-link>
@@ -84,9 +94,25 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
-                {{ __('Mes Bénéficiaires') }}
-            </x-responsive-nav-link>
+            @if(!auth()->user()->is_admin)
+                <x-responsive-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
+                    {{ __('Mes Bénéficiaires') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if(auth()->user()->is_admin)
+                <x-responsive-nav-link :href="route('admin.beneficiaires')" :active="request()->routeIs('admin.beneficiaires')">
+                    {{ __('Administration') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('admin.missions.index')" :active="request()->routeIs('admin.missions.*')">
+                    {{ __('Missions') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
+                    {{ __('Utilisateurs') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

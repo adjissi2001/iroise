@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BeneficiaireController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminMissionController;
 use App\Http\Controllers\ReferentController;
 use App\Http\Controllers\BenevolController;
 use App\Http\Controllers\BienvenueController;
@@ -42,6 +43,15 @@ Route::middleware('auth')->group(function () {
     
     // Interface d'administration
     Route::get('/administration', [AdminController::class, 'selectBeneficiaires'])->name('admin.beneficiaires');
+
+    // Admin Missions (module séparé)
+    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/missions', [AdminMissionController::class, 'index'])->name('missions.index');
+        Route::post('/missions', [AdminMissionController::class, 'store'])->name('missions.store');
+        Route::get('/missions/{mission}/edit', [AdminMissionController::class, 'edit'])->name('missions.edit');
+        Route::put('/missions/{mission}', [AdminMissionController::class, 'update'])->name('missions.update');
+        Route::post('/missions/{mission}/annuler', [AdminMissionController::class, 'annuler'])->name('missions.annuler');
+    });
 });
 
 // 👥 Routes pour les utilisateurs (admin seulement)
