@@ -1,15 +1,17 @@
+@extends('layouts.app')
+
 @push('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="{{ asset('css/beneficiaires.css') }}">
 @endpush
 
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+@section('content')
+    <div class="mb-6">
+        <h2 class="font-semibold text-xl text-gray-800">
             {{ __('Gestion des Utilisateurs') }}
         </h2>
-    </x-slot>
+    </div>
 
     @if (session('success'))
         <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
@@ -101,5 +103,4 @@
             });
         </script>
     @endpush
-
-</x-app-layout>
+@endsection

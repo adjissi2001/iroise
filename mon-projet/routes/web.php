@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BeneficiaireController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ReferentController;
+use App\Http\Controllers\BenevolController;
 use App\Http\Controllers\BienvenueController;
 use Illuminate\Support\Facades\Route;
 
@@ -51,7 +53,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/utilisateurs/{id}', [UserController::class, 'show'])->name('user.show');
 });
 
-// 🔐 Routes d'authentification Breeze
+// � Routes pour l'espace référent (authentification requise)
+Route::middleware(['auth'])->group(function () {
+    // Espace référent
+    Route::get('/referent', [ReferentController::class, 'index'])->name('referent.index');
+});
+// 🤝 Routes pour l'espace bénévole (authentification requise)
+Route::middleware(['auth'])->group(function () {
+    // Espace bénévole
+    Route::get('/benevole', [BenevolController::class, 'index'])->name('benevole.index');
+});
+// �🔐 Routes d'authentification Breeze
 require __DIR__.'/auth.php';
 
 

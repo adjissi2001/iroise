@@ -1,15 +1,25 @@
+@extends('layouts.app')
+
 @push('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="{{ asset('css/beneficiaires.css') }}">
 @endpush
 
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+@section('content')
+    <div class="mb-6 flex justify-between items-center">
+        <h2 class="font-semibold text-xl text-gray-800">
             {{ __('Mes Bénéficiaires') }}
         </h2>
-    </x-slot>
+        @php
+            $roleProfil = optional(auth()->user()->profil)->role;
+        @endphp
+        @if(in_array($roleProfil, ['referent', 'benevole']))
+            <a href="{{ route('beneficiaire.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition">
+                <i class="fas fa-plus mr-2"></i> Ajouter un bénéficiaire
+            </a>
+        @endif
+    </div>
 
     @if (session('success'))
         <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
@@ -91,5 +101,4 @@
         <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
         <script src="{{ asset('js/beneficiaires.js') }}"></script>
     @endpush
-
-</x-app-layout>
+@endsection
