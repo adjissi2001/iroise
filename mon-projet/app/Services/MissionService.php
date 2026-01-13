@@ -64,10 +64,16 @@ class MissionService
             }
         }
 
-        // dates/times
-        $payload['date_depart'] = $data['date_depart'] ?? null;
-        $payload['heure_depart'] = $data['heure_depart'] ?? null;
-        $payload['heure_arrivee'] = $data['heure_arrivee'] ?? null;
+        // dates/times - Ne pas inclure si null
+        if (!empty($data['date_depart'])) {
+            $payload['date_depart'] = $data['date_depart'];
+        }
+        if (!empty($data['heure_depart'])) {
+            $payload['heure_depart'] = $data['heure_depart'];
+        }
+        if (!empty($data['heure_arrivee'])) {
+            $payload['heure_arrivee'] = $data['heure_arrivee'];
+        }
 
         // default state
         if (Schema::hasColumn('mission', 'etat_mission') || Schema::hasColumn('missions', 'etat_mission')) {

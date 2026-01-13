@@ -26,7 +26,7 @@ class AdminMissionController extends Controller
         $validated = $request->validate([
             'categorie' => 'nullable|integer', // id de catégorie
             'lieu' => 'nullable|string|max:255',
-            'date_depart' => 'nullable|date',
+            'date_depart' => 'required|date',
             'heure_depart' => 'nullable',
             'heure_arrivee' => 'nullable',
             'description' => 'nullable|string',

@@ -100,32 +100,16 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-<<<<<<< HEAD
-            @if(!auth()->user()->is_admin)
-=======
+            
             @php
                 $roleProfil = optional(auth()->user()->profil)->role;
             @endphp
-            @if($roleProfil === 'referent' || auth()->user()->is_admin)
-                <x-responsive-nav-link :href="route('admin.beneficiaires')" :active="request()->routeIs('admin.beneficiaires')">
-                    {{ __('Liste Bénéficiaires') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
-                    {{ __('Utilisateurs') }}
-                </x-responsive-nav-link>
-            @else
->>>>>>> debut
-                <x-responsive-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
-                    {{ __('Mes Bénéficiaires') }}
-                </x-responsive-nav-link>
-            @endif
-<<<<<<< HEAD
-
+            
             @if(auth()->user()->is_admin)
                 <x-responsive-nav-link :href="route('admin.beneficiaires')" :active="request()->routeIs('admin.beneficiaires')">
-                    {{ __('Administration') }}
+                    {{ __('Bénéficiaires') }}
                 </x-responsive-nav-link>
-
+                
                 <x-responsive-nav-link :href="route('admin.missions.index')" :active="request()->routeIs('admin.missions.*')">
                     {{ __('Missions') }}
                 </x-responsive-nav-link>
@@ -133,9 +117,18 @@
                 <x-responsive-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
                     {{ __('Utilisateurs') }}
                 </x-responsive-nav-link>
+            @elseif($roleProfil === 'referent')
+                <x-responsive-nav-link :href="route('admin.beneficiaires')" :active="request()->routeIs('admin.beneficiaires')">
+                    {{ __('Liste Bénéficiaires') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
+                    {{ __('Mes Bénéficiaires') }}
+                </x-responsive-nav-link>
+            @else
+                <x-responsive-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
+                    {{ __('Mes Bénéficiaires') }}
+                </x-responsive-nav-link>
             @endif
-=======
->>>>>>> debut
         </div>
 
         <!-- Responsive Settings Options -->
