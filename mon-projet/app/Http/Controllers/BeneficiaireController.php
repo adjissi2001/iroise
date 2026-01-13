@@ -19,8 +19,8 @@ class BeneficiaireController extends Controller
      */
     public function index()
     {
-        // Afficher uniquement les bénéficiaires de l'utilisateur connecté
-        $beneficiaires = $this->beneficiaireService->listForUser(auth()->user());
+        // Afficher TOUS les bénéficiaires
+        $beneficiaires = $this->beneficiaireService->listAll();
 
         return view('beneficiaire.index', compact('beneficiaires'));
     }
@@ -30,8 +30,8 @@ class BeneficiaireController extends Controller
      */
     public function show($id)
     {
-        // Vérifier que le bénéficiaire appartient à l'utilisateur connecté
-        $beneficiaire = $this->beneficiaireService->findForUser(auth()->user(), (int) $id);
+        // Afficher n'importe quel bénéficiaire
+        $beneficiaire = $this->beneficiaireService->findById((int) $id);
 
         if (!$beneficiaire) {
             return redirect()->back()->with('error', 'Bénéficiaire introuvable.');
@@ -119,14 +119,31 @@ class BeneficiaireController extends Controller
                 'nom' => ['required', 'string', 'max:100'],
                 'prenom' => ['required', 'string', 'max:100'],
                 'date_naissance' => ['required', 'date'],
+                'email' => ['nullable', 'email'],
                 'num_tel' => ['nullable', 'string', 'max:20'],
+                'num_fixe' => ['nullable', 'string', 'max:20'],
+                'contact_urgence' => ['nullable', 'string', 'max:100'],
+                'tel_contact_urgence' => ['nullable', 'string', 'max:20'],
+                'montant_cotisation' => ['nullable', 'numeric', 'min:0'],
+                'moyen_paiement' => ['nullable', 'string', 'max:50'],
             ]);
+
+            // Calculer l'âge à partir de la date de naissance
+            $dateNaissance = \Carbon\Carbon::parse($request->date_naissance);
+            $age = $dateNaissance->age;
 
             $this->beneficiaireService->createForUser(auth()->user(), [
                 'nom' => $request->nom,
                 'prenom' => $request->prenom,
                 'date_naissance' => $request->date_naissance,
+                'age' => $age,
+                'email' => $request->email,
                 'num_tel' => $request->num_tel,
+                'num_fixe' => $request->num_fixe,
+                'contact_urgence' => $request->contact_urgence,
+                'tel_contact_urgence' => $request->tel_contact_urgence,
+                'montant_cotisation' => $request->montant_cotisation,
+                'moyen_paiement' => $request->moyen_paiement,
                 'actif' => 1,
             ]);
 

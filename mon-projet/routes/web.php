@@ -31,6 +31,10 @@ Route::middleware('auth')->group(function () {
     // Liste des bénéficiaires
     Route::get('/beneficiaires', [BeneficiaireController::class, 'index'])->name('beneficiaire.index');
     
+    // Création d'un bénéficiaire (AVANT la route {id})
+    Route::get('/beneficiaires/create', [BeneficiaireController::class, 'create'])->name('beneficiaire.create');
+    Route::post('/beneficiaires', [BeneficiaireController::class, 'store'])->name('beneficiaire.store');
+    
     // Détail d'un bénéficiaire
     Route::get('/beneficiaires/{id}', [BeneficiaireController::class, 'show'])->name('beneficiaire.show');
     
@@ -66,9 +70,3 @@ Route::middleware(['auth'])->group(function () {
 // �🔐 Routes d'authentification Breeze
 require __DIR__.'/auth.php';
 
-
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/beneficiaires/create', [BeneficiaireController::class, 'create'])->name('beneficiaire.create');
-    Route::post('/beneficiaires', [BeneficiaireController::class, 'store'])->name('beneficiaire.store');
-});

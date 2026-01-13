@@ -48,6 +48,11 @@
 @section('content')
     <div class="mb-6">
         <h2 class="font-semibold text-xl text-gray-800">Liste des Bénéficiaires</h2>
+        <div class="mt-4">
+            <a href="{{ route('beneficiaire.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-yellow-300 rounded-lg shadow hover:bg-green-700 transition">
+                <i class="fa-solid fa-plus mr-2"></i> Ajouter un bénéficiaire
+            </a>
+        </div>
     </div>
 
     @if(!empty($errorMessage))
@@ -180,25 +185,6 @@
                     modal.style.display = 'none';
                 }
             }
-
-            $(document).ready(function() {
-                var table = $('#beneficiairesTable').DataTable({
-                    orderCellsTop: true,
-                    pageLength: 10,
-                    language: {
-                        url: "//cdn.datatables.net/plug-ins/1.13.8/i18n/fr-FR.json"
-                    }
-                });
-
-                // Filtrage par colonne
-                $('#beneficiairesTable thead tr:eq(1) th').each(function(i) {
-                    var select = $('<input type="text" placeholder="Chercher..." />')
-                        .appendTo($(this).empty())
-                        .on('keyup change', function() {
-                            table.column(i).search(this.value).draw();
-                        });
-                });
-            });
         </script>
     @endpush
 @endsection

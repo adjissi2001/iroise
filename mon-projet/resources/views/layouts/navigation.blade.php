@@ -15,17 +15,21 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
-                        {{ __('Mes Bénéficiaires') }}
-                    </x-nav-link>
 
                     @php
                         $roleProfil = optional(auth()->user()->profil)->role; // referent / benevole / bienfaiteur
                     @endphp
 
-                    @if(auth()->user()->is_admin)
+                    @if($roleProfil === 'referent' || auth()->user()->is_admin)
+                        <x-nav-link :href="route('admin.beneficiaires')" :active="request()->routeIs('admin.beneficiaires')">
+                            {{ __('Liste Bénéficiaires') }}
+                        </x-nav-link>
                         <x-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
                             {{ __('Utilisateurs') }}
+                        </x-nav-link>
+                    @else
+                        <x-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
+                            {{ __('Mes Bénéficiaires') }}
                         </x-nav-link>
                     @endif
 
@@ -84,9 +88,21 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
-                {{ __('Mes Bénéficiaires') }}
-            </x-responsive-nav-link>
+            @php
+                $roleProfil = optional(auth()->user()->profil)->role;
+            @endphp
+            @if($roleProfil === 'referent' || auth()->user()->is_admin)
+                <x-responsive-nav-link :href="route('admin.beneficiaires')" :active="request()->routeIs('admin.beneficiaires')">
+                    {{ __('Liste Bénéficiaires') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
+                    {{ __('Utilisateurs') }}
+                </x-responsive-nav-link>
+            @else
+                <x-responsive-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
+                    {{ __('Mes Bénéficiaires') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
