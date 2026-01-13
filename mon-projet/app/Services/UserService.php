@@ -14,7 +14,8 @@ class UserService
 
     public function canManageUsers(User $authUser): bool
     {
-        return (bool) $authUser->is_admin;
+        $roleProfil = optional($authUser->profil)->role;
+        return (bool) ($authUser->is_admin || $roleProfil === 'referent');
     }
 
     public function listAll(): Collection

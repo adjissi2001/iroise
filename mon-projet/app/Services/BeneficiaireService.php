@@ -22,11 +22,27 @@ class BeneficiaireService
     }
 
     /**
+     * Liste TOUS les bénéficiaires
+     */
+    public function listAll(): Collection
+    {
+        return $this->repository->all();
+    }
+
+    /**
      * Retourne un bénéficiaire appartenant à l'utilisateur, ou null.
      */
     public function findForUser(Authenticatable $user, int $beneficiaireId): ?Beneficiaire
     {
         return $this->repository->findOwned($user->id, $beneficiaireId);
+    }
+
+    /**
+     * Retourne un bénéficiaire par ID (n'importe lequel)
+     */
+    public function findById(int $beneficiaireId): ?Beneficiaire
+    {
+        return $this->repository->find($beneficiaireId);
     }
 
     /**

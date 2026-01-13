@@ -22,8 +22,16 @@ class Beneficiaire extends Model
         'prenom',
         'email',
         'num_tel',
+        'num_fixe',
         'date_naissance',
+        'age',
         'user_id',
+        'actif',
+        'date_inscription',
+        'contact_urgence',
+        'tel_contact_urgence',
+        'montant_cotisation',
+        'moyen_paiement',
     ];
 
     /**

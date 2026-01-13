@@ -34,6 +34,14 @@ class BeneficiaireRepository
     }
 
     /**
+     * Trouve un bénéficiaire par ID (n'importe lequel)
+     */
+    public function find(int $beneficiaireId): ?Beneficiaire
+    {
+        return Beneficiaire::where('id_beneficiaire', $beneficiaireId)->first();
+    }
+
+    /**
      * Met à jour un bénéficiaire.
      */
     public function update(int $beneficiaireId, array $data): bool
