@@ -77,6 +77,18 @@ th {
     color: #0056b3;
 }
 
+/* Validation errors */
+.form-error {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 6px;
+}
+
+.form-control.is-invalid {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 0.15rem rgba(220, 38, 38, 0.12);
+}
+
 /* Delete */
 .btn-delete {
     background: transparent;

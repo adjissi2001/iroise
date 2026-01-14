@@ -19,11 +19,55 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
         'email',
         'password',
         'is_admin',
+        'actif',
     ];
+
+    public function getPrenomAttribute($value)
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+
+        $profil = $this->relationLoaded('profil') ? $this->profil : $this->profil()->first();
+        return $profil?->prenom ?? '';
+    }
+
+    public function getNomAttribute($value)
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+
+        $profil = $this->relationLoaded('profil') ? $this->profil : $this->profil()->first();
+        return $profil?->nom ?? '';
+    }
+
+    public function getDisplayNameAttribute(): string
+    {
+        $fullName = trim(($this->prenom ?? '').' '.($this->nom ?? ''));
+        if ($fullName !== '') {
+            return $fullName;
+        }
+
+        return (string) ($this->email ?? '');
+    }
+
+    public function getNameAttribute($value)
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+
+        $profil = $this->relationLoaded('profil') ? $this->profil : $this->profil()->first();
+        if (!$profil) {
+            return '';
+        }
+
+        return trim(($profil->prenom ?? '').' '.($profil->nom ?? ''));
+    }
 
     /**
      * The attributes that should be hidden for serialization.

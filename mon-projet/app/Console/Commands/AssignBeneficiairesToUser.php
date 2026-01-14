@@ -41,7 +41,7 @@ class AssignBeneficiairesToUser extends Command
             $this->info('Liste des utilisateurs disponibles:');
             $this->table(
                 ['ID', 'Nom', 'Email'],
-                $users->map(fn($u) => [$u->id, $u->name, $u->email])
+                $users->map(fn($u) => [$u->id, trim($u->prenom.' '.$u->nom), $u->email])
             );
 
             $userId = $this->ask('Entrez l\'ID de l\'utilisateur auquel assigner les bénéficiaires');
@@ -64,7 +64,7 @@ class AssignBeneficiairesToUser extends Command
 
         $this->info("Trouvé {$beneficiaires->count()} bénéficiaire(s) sans assignation.");
         
-        if ($this->option('force') || $this->confirm("Voulez-vous assigner ces bénéficiaires à {$user->name} ({$user->email})?", true)) {
+        if ($this->option('force') || $this->confirm("Voulez-vous assigner ces bénéficiaires à ".trim($user->prenom.' '.$user->nom)." ({$user->email})?", true)) {
             $count = 0;
             foreach ($beneficiaires as $beneficiaire) {
                 $beneficiaire->user_id = $user->id;
@@ -72,7 +72,7 @@ class AssignBeneficiairesToUser extends Command
                 $count++;
             }
 
-            $this->info("✅ {$count} bénéficiaire(s) ont été assignés à {$user->name}!");
+            $this->info("✅ {$count} bénéficiaire(s) ont été assignés à ".trim($user->prenom.' '.$user->nom)."!");
         } else {
             $this->info('Opération annulée.');
         }

@@ -6,6 +6,7 @@ use App\Models\Mission;
 use App\Services\MissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class AdminMissionController extends Controller
 {
@@ -17,19 +18,29 @@ class AdminMissionController extends Controller
     {
         $missions = $this->missionService->listAllForAdmin();
         $categories = $this->missionService->listCategories();
+        $beneficiaires = $this->missionService->listBeneficiairesForSelect();
 
-        return view('admin.missions.index', compact('missions', 'categories'));
+        return view('admin.missions.index', compact('missions', 'categories', 'beneficiaires'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'categorie' => 'nullable|integer', // id de catégorie
-            'lieu' => 'nullable|string|max:255',
+            'categorie' => [
+                'required',
+                'integer',
+                Rule::exists('categorie', 'id_categorie'),
+            ],
+            'lieu' => 'required|string|max:255',
             'date_depart' => 'required|date',
-            'heure_depart' => 'nullable',
-            'heure_arrivee' => 'nullable',
-            'description' => 'nullable|string',
+            'heure_depart' => ['required', 'regex:/^\d{2}:\d{2}(:\d{2})?$/'],
+            'heure_arrivee' => ['required', 'regex:/^\d{2}:\d{2}(:\d{2})?$/'],
+            'description' => 'required|string',
+            'beneficiaires' => 'required|array|min:1',
+            'beneficiaires.*' => [
+                'integer',
+                Rule::exists('beneficiaire', 'id_beneficiaire'),
+            ],
         ]);
 
         $mission = $this->missionService->createForAdmin(auth()->user(), $validated);
@@ -54,20 +65,31 @@ class AdminMissionController extends Controller
     public function edit(Mission $mission)
     {
         $categories = $this->missionService->listCategories();
+        $beneficiaires = $this->missionService->listBeneficiairesForSelect();
+        $selectedBeneficiaires = $this->missionService->getBeneficiaireIdsForMission($mission);
 
-        return view('admin.missions.edit', compact('mission', 'categories'));
+        return view('admin.missions.edit', compact('mission', 'categories', 'beneficiaires', 'selectedBeneficiaires'));
     }
 
     public function update(Request $request, Mission $mission)
     {
         $validated = $request->validate([
-            'categorie' => 'nullable|integer', // id de catégorie
-            'lieu' => 'nullable|string|max:255',
-            'date_depart' => 'nullable|date',
-            'heure_depart' => 'nullable',
-            'heure_arrivee' => 'nullable',
-            'description' => 'nullable|string',
+            'categorie' => [
+                'required',
+                'integer',
+                Rule::exists('categorie', 'id_categorie'),
+            ],
+            'lieu' => 'required|string|max:255',
+            'date_depart' => 'required|date',
+            'heure_depart' => ['required', 'regex:/^\d{2}:\d{2}(:\d{2})?$/'],
+            'heure_arrivee' => ['required', 'regex:/^\d{2}:\d{2}(:\d{2})?$/'],
+            'description' => 'required|string',
             'etat' => 'required|in:non_prise,prise,validee,annulee',
+            'beneficiaires' => 'required|array|min:1',
+            'beneficiaires.*' => [
+                'integer',
+                Rule::exists('beneficiaire', 'id_beneficiaire'),
+            ],
         ]);
 
         $this->missionService->updateForAdmin(auth()->user(), $mission, $validated);

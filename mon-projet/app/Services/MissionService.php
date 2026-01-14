@@ -39,6 +39,17 @@ class MissionService
         return DB::table('categorie')->select('id_categorie', 'nom_categorie')->get();
     }
 
+    public function listBeneficiairesForSelect(): Collection
+    {
+        return $this->repository->listBeneficiairesForSelect();
+    }
+
+    /** @return int[] */
+    public function getBeneficiaireIdsForMission(Mission $mission): array
+    {
+        return $this->repository->getBeneficiaireIdsForMission((int) $mission->getKey());
+    }
+
     /**
      * Mappe les champs du formulaire vers le schéma legacy `mission`.
      */
@@ -111,14 +122,26 @@ class MissionService
     {
         $payload = $this->buildLegacyPayload($validatedData, $user);
 
-        return $this->repository->create($payload);
+        $mission = $this->repository->create($payload);
+        $beneficiaires = $validatedData['beneficiaires'] ?? [];
+        if (is_array($beneficiaires)) {
+            $this->repository->syncMissionBeneficiaires((int) $mission->getKey(), $beneficiaires);
+        }
+
+        return $mission;
     }
 
     public function updateForAdmin(?Authenticatable $user, Mission $mission, array $validatedData): bool
     {
         $payload = $this->buildLegacyPayload($validatedData, $user);
 
-        return $this->repository->update($mission, $payload);
+        $updated = $this->repository->update($mission, $payload);
+        $beneficiaires = $validatedData['beneficiaires'] ?? [];
+        if (is_array($beneficiaires)) {
+            $this->repository->syncMissionBeneficiaires((int) $mission->getKey(), $beneficiaires);
+        }
+
+        return $updated;
     }
 
     public function cancelMission(Mission $mission): bool

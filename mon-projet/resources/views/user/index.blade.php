@@ -55,7 +55,7 @@
                 <tbody>
                     @foreach($users as $user)
                         <tr>
-                            <td data-label="Nom">{{ $user->name }}</td>
+                            <td data-label="Nom">{{ trim($user->prenom.' '.$user->nom) }}</td>
                             <td data-label="Email">{{ $user->email }}</td>
                             <td data-label="Statut">
                                 <span class="badge {{ $user->is_admin ? 'badge-admin' : 'badge-user' }}">

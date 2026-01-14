@@ -25,7 +25,7 @@
                 <!-- Nom -->
                 <div>
                     <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide">Nom</label>
-                    <p class="text-lg font-semibold text-gray-900 mt-1">{{ $user->name }}</p>
+                    <p class="text-lg font-semibold text-gray-900 mt-1">{{ trim($user->prenom.' '.$user->nom) }}</p>
                 </div>
 
                 <!-- Email -->

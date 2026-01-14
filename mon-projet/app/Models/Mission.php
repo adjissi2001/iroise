@@ -14,8 +14,8 @@ class Mission extends Model
     public $incrementing = true;
     protected $keyType = 'int';
 
-    const CREATED_AT = 'date_creation';
-    const UPDATED_AT = null;
+    // La table `mission` dans cette base n'a pas de timestamps Laravel (created_at/updated_at)
+    public $timestamps = false;
 
     protected $fillable = [
         'id_categorie',

@@ -99,7 +99,7 @@
 
             <div class="form-group">
                 <label for="categorie" class="form-label">Catégorie</label>
-                <select name="categorie" id="categorie" class="form-control">
+                <select name="categorie" id="categorie" class="form-control {{ $errors->has('categorie') ? 'is-invalid' : '' }}" required>
                     <option value="">-- sélectionner --</option>
                     @foreach(($categories ?? collect()) as $c)
                         <option value="{{ $c->id_categorie }}" {{ (string)old('categorie') === (string)$c->id_categorie ? 'selected' : '' }}>
@@ -107,31 +107,81 @@
                         </option>
                     @endforeach
                 </select>
+                @error('categorie')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="form-group">
                 <label for="lieu" class="form-label">Lieu</label>
-                <input type="text" id="lieu" name="lieu" class="form-control" value="{{ old('lieu') }}" />
+                <input type="text" id="lieu" name="lieu" class="form-control {{ $errors->has('lieu') ? 'is-invalid' : '' }}" value="{{ old('lieu') }}" required />
+                @error('lieu')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group">
+                <label for="beneficiaires" class="form-label">Bénéficiaires (un ou plusieurs)</label>
+                @php
+                    $oldBeneficiaires = collect(old('beneficiaires', []))->map(fn ($v) => (int) $v)->all();
+                @endphp
+                <div class="beneficiaire-picker" id="beneficiairePickerCreate">
+                    <input type="text" id="beneficiaireSearch" class="form-control {{ ($errors->has('beneficiaires') || $errors->has('beneficiaires.*')) ? 'is-invalid' : '' }}" placeholder="Rechercher par email..." autocomplete="off" />
+                    <div class="beneficiaire-suggestions" id="beneficiaireSuggestions" role="listbox" aria-label="Suggestions"></div>
+                    <div class="beneficiaire-selected" id="beneficiaireSelected"></div>
+                    <div class="beneficiaire-hidden-inputs" id="beneficiaireHiddenInputs"></div>
+                    <small class="text-gray-500">Tape l'email, clique sur une suggestion pour l'ajouter. Tu peux en ajouter plusieurs.</small>
+                </div>
+                @error('beneficiaires')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
+                @error('beneficiaires.*')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label for="date_depart" class="form-label">Date de départ</label>
-                    <input type="date" id="date_depart" name="date_depart" class="form-control" value="{{ old('date_depart') }}" />
+                    <input type="date" id="date_depart" name="date_depart" class="form-control {{ $errors->has('date_depart') ? 'is-invalid' : '' }}" value="{{ old('date_depart') }}" required />
+                    @error('date_depart')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label for="heure_depart" class="form-label">Heure départ</label>
-                    <input type="time" id="heure_depart" name="heure_depart" class="form-control" value="{{ old('heure_depart') }}" />
+                    @php
+                        $heureDepartCreateValue = old('heure_depart', '');
+                        if (is_string($heureDepartCreateValue) && strlen($heureDepartCreateValue) >= 5) {
+                            $heureDepartCreateValue = substr($heureDepartCreateValue, 0, 5);
+                        }
+                    @endphp
+                    <input type="time" id="heure_depart" name="heure_depart" class="form-control {{ $errors->has('heure_depart') ? 'is-invalid' : '' }}" value="{{ $heureDepartCreateValue }}" required />
+                    @error('heure_depart')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label for="heure_arrivee" class="form-label">Heure arrivée</label>
-                    <input type="time" id="heure_arrivee" name="heure_arrivee" class="form-control" value="{{ old('heure_arrivee') }}" />
+                    @php
+                        $heureArriveeCreateValue = old('heure_arrivee', '');
+                        if (is_string($heureArriveeCreateValue) && strlen($heureArriveeCreateValue) >= 5) {
+                            $heureArriveeCreateValue = substr($heureArriveeCreateValue, 0, 5);
+                        }
+                    @endphp
+                    <input type="time" id="heure_arrivee" name="heure_arrivee" class="form-control {{ $errors->has('heure_arrivee') ? 'is-invalid' : '' }}" value="{{ $heureArriveeCreateValue }}" required />
+                    @error('heure_arrivee')
+                        <div class="form-error">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="description" class="form-label">Remarques</label>
-                <textarea id="description" name="description" rows="4" class="form-control">{{ old('description') }}</textarea>
+                <textarea id="description" name="description" rows="4" class="form-control {{ $errors->has('description') ? 'is-invalid' : '' }}" required>{{ old('description') }}</textarea>
+                @error('description')
+                    <div class="form-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="modal-actions">
@@ -147,6 +197,131 @@
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="{{ asset('js/missions.js') }}"></script>
     <script>
+        (function initBeneficiairePickerCreate() {
+            const allBeneficiaires = [
+                @foreach(($beneficiaires ?? collect()) as $b)
+                    {
+                        id: {{ (int)($b->id_beneficiaire ?? 0) }},
+                        email: @json((string)($b->email ?? '')),
+                        nom: @json((string)($b->nom ?? '')),
+                        prenom: @json((string)($b->prenom ?? '')),
+                    },
+                @endforeach
+            ];
+
+            const input = document.getElementById('beneficiaireSearch');
+            const suggestions = document.getElementById('beneficiaireSuggestions');
+            const selectedWrap = document.getElementById('beneficiaireSelected');
+            const hiddenInputs = document.getElementById('beneficiaireHiddenInputs');
+
+            if (!input || !suggestions || !selectedWrap || !hiddenInputs) return;
+
+            const selected = new Map();
+            const initialSelected = @json($oldBeneficiaires);
+            const byId = new Map(allBeneficiaires.map(b => [Number(b.id), b]));
+
+            function render() {
+                // chips
+                selectedWrap.innerHTML = '';
+                hiddenInputs.innerHTML = '';
+
+                const ids = Array.from(selected.keys());
+                if (ids.length === 0) {
+                    selectedWrap.innerHTML = '<div class="beneficiaire-empty">Aucun bénéficiaire sélectionné</div>';
+                    return;
+                }
+
+                ids.forEach((id) => {
+                    const b = selected.get(id);
+                    const labelName = [b.prenom, b.nom].filter(Boolean).join(' ').trim();
+                    const label = b.email ? (labelName ? `${b.email} — ${labelName}` : b.email) : `ID ${id}`;
+
+                    const chip = document.createElement('div');
+                    chip.className = 'beneficiaire-chip';
+                    chip.innerHTML = `<span class="beneficiaire-chip-text"></span><button type="button" class="beneficiaire-chip-remove" aria-label="Supprimer">×</button>`;
+                    chip.querySelector('.beneficiaire-chip-text').textContent = label;
+                    chip.querySelector('.beneficiaire-chip-remove').addEventListener('click', () => {
+                        selected.delete(id);
+                        render();
+                    });
+                    selectedWrap.appendChild(chip);
+
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'beneficiaires[]';
+                    hidden.value = String(id);
+                    hiddenInputs.appendChild(hidden);
+                });
+            }
+
+            function closeSuggestions() {
+                suggestions.innerHTML = '';
+                suggestions.style.display = 'none';
+            }
+
+            function openSuggestions(items) {
+                suggestions.innerHTML = '';
+                if (!items.length) {
+                    closeSuggestions();
+                    return;
+                }
+
+                items.slice(0, 8).forEach((b) => {
+                    const option = document.createElement('button');
+                    option.type = 'button';
+                    option.className = 'beneficiaire-suggestion';
+                    const labelName = [b.prenom, b.nom].filter(Boolean).join(' ').trim();
+                    const label = b.email ? (labelName ? `${b.email} — ${labelName}` : b.email) : `ID ${b.id}`;
+                    option.textContent = label;
+                    option.addEventListener('click', () => {
+                        selected.set(Number(b.id), b);
+                        input.value = '';
+                        closeSuggestions();
+                        render();
+                        input.focus();
+                    });
+                    suggestions.appendChild(option);
+                });
+
+                suggestions.style.display = 'block';
+            }
+
+            input.addEventListener('input', () => {
+                const term = (input.value || '').toLowerCase().trim();
+                if (term.length < 1) {
+                    closeSuggestions();
+                    return;
+                }
+
+                const matches = allBeneficiaires
+                    .filter((b) => !selected.has(Number(b.id)))
+                    .filter((b) => (b.email || '').toLowerCase().includes(term) || (b.nom || '').toLowerCase().includes(term) || (b.prenom || '').toLowerCase().includes(term));
+
+                openSuggestions(matches);
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeSuggestions();
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                const picker = document.getElementById('beneficiairePickerCreate');
+                if (!picker) return;
+                if (!picker.contains(e.target)) {
+                    closeSuggestions();
+                }
+            });
+
+            // init old selection
+            (initialSelected || []).forEach((id) => {
+                const b = byId.get(Number(id));
+                if (b) selected.set(Number(id), b);
+            });
+            render();
+        })();
+
         function openCreateMissionModal() {
             const modal = document.getElementById('createMissionModal');
             if (!modal) return;
