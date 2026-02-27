@@ -12,6 +12,16 @@
         <!-- Zone pour les missions (vide au départ) -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Mes Missions</h2>
+            @if(optional(auth()->user()->profil)->est_valide == 0)
+                <div class="mb-4 p-4 bg-yellow-100 border border-yellow-300 rounded">
+                    <strong>Action requise :</strong> Vous devez modifier votre mot de passe pour valider votre compte. <a href="{{ route('profile.edit') }}" class="text-blue-600 underline">Cliquez ici pour modifier</a>.
+                </div>
+            @endif
+            @if(session('success'))
+                <div class="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded">
+                    {{ session('success') }}
+                </div>
+            @endif
             
             <div id="missions-container" class="text-center py-12">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

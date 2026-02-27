@@ -47,6 +47,17 @@ class NewPasswordController extends Controller
                     'remember_token' => Str::random(60),
                 ])->save();
 
+                // If the user's profil exists and was not validated, mark it validated
+                try {
+                    $profil = $user->profil;
+                    if ($profil && isset($profil->est_valide) && !$profil->est_valide) {
+                        $profil->est_valide = 1;
+                        $profil->save();
+                    }
+                } catch (\Throwable $e) {
+                    // Non critique: ne pas empêcher la réinitialisation du mot de passe
+                }
+
                 event(new PasswordReset($user));
             }
         );

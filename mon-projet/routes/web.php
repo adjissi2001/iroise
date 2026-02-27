@@ -18,17 +18,17 @@ Route::get('/bienvenue', [BienvenueController::class, 'index'])->name('bienvenue
 // 📊 Dashboard (authentification requise)
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'profile.validated', 'verified'])->name('dashboard');
 
 // 👤 Routes du profil utilisateur (authentification requise)
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'profile.validated'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 // 🏥 Routes pour les bénéficiaires (authentification requise)
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'profile.validated'])->group(function () {
     // Liste des bénéficiaires
     Route::get('/beneficiaires', [BeneficiaireController::class, 'index'])->name('beneficiaire.index');
     
@@ -49,7 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/administration', [AdminController::class, 'selectBeneficiaires'])->name('admin.beneficiaires');
 
     // Admin Missions (module séparé)
-    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware(['profile.validated', 'admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/missions', [AdminMissionController::class, 'index'])->name('missions.index');
         Route::post('/missions', [AdminMissionController::class, 'store'])->name('missions.store');
         Route::get('/missions/{mission}/edit', [AdminMissionController::class, 'edit'])->name('missions.edit');
@@ -59,7 +59,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // 👥 Routes pour les utilisateurs (admin seulement)
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'profile.validated'])->group(function () {
     // Liste des utilisateurs
     Route::get('/utilisateurs', [UserController::class, 'index'])->name('user.index');
     
@@ -67,16 +67,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/utilisateurs/{id}', [UserController::class, 'show'])->name('user.show');
 });
 
-// � Routes pour l'espace référent (authentification requise)
-Route::middleware(['auth'])->group(function () {
+// Routes d'édition/suppression réservées aux administrateurs
+Route::middleware(['auth', 'profile.validated', 'admin'])->group(function () {
+    Route::get('/utilisateurs/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
+    Route::put('/utilisateurs/{id}', [UserController::class, 'update'])->name('user.update');
+    Route::delete('/utilisateurs/{id}', [UserController::class, 'destroy'])->name('user.destroy');
+});
+
+// Routes pour l'espace référent (authentification requise)
+Route::middleware(['auth', 'profile.validated'])->group(function () {
     // Espace référent
     Route::get('/referent', [ReferentController::class, 'index'])->name('referent.index');
 });
-// 🤝 Routes pour l'espace bénévole (authentification requise)
-Route::middleware(['auth'])->group(function () {
+// Routes pour l'espace bénévole (authentification requise)
+Route::middleware(['auth', 'profile.validated'])->group(function () {
     // Espace bénévole
     Route::get('/benevole', [BenevolController::class, 'index'])->name('benevole.index');
 });
-// �🔐 Routes d'authentification Breeze
+// Routes d'authentification Breeze
 require __DIR__.'/auth.php';
 

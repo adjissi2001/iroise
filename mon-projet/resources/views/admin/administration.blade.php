@@ -47,6 +47,18 @@
 
 @section('content')
     <div class="mb-6">
+        @if(session('must_update_password'))
+            <div class="mb-4 p-4 bg-yellow-100 border border-yellow-300 rounded">
+                {{ session('must_update_password') }} <a href="{{ route('profile.edit') }}" class="text-blue-600 underline">Cliquez ici</a>.
+            </div>
+        @endif
+
+        @if(session('success'))
+            <div class="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <h2 class="font-semibold text-xl text-gray-800">Liste des Bénéficiaires</h2>
         <div class="mt-4">
             <a href="{{ route('beneficiaire.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-yellow-300 rounded-lg shadow hover:bg-green-700 transition">

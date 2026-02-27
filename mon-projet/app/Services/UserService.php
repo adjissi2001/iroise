@@ -23,6 +23,16 @@ class UserService
         return $this->userRepository->all();
     }
 
+    public function listValidated(): Collection
+    {
+        return $this->userRepository->allValidated();
+    }
+
+    public function listPending(): Collection
+    {
+        return $this->userRepository->allPending();
+    }
+
     public function find(int $id): ?User
     {
         return $this->userRepository->find($id);

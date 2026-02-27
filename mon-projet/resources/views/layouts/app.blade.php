@@ -36,6 +36,22 @@
                 </div>
             </main>
         </div>
+        <!-- Global footer -->
+        <footer class="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8">
+            <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center text-sm text-gray-700 dark:text-gray-300">
+                <div class="mb-4 sm:mb-0 text-center sm:text-left">
+                    <strong>Association Iroise</strong><br>
+                    12 rue de la Plage, 29430 Lampaul-Plouarzel<br>
+                    Tél. : 02 98 00 00 00<br>
+                    Email: <a href="mailto:contact@association-iroise.org" class="text-blue-600 underline">contact@association-iroise.org</a>
+                </div>
+                <div class="text-sm">
+                    <a href="{{ route('home') }}" class="mr-4 hover:underline">Accueil</a>
+                    <a href="#contact" class="hover:underline">Nous contacter</a>
+                </div>
+            </div>
+        </footer>
+
         @stack('scripts')
     </body>
 </html>

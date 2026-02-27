@@ -73,6 +73,26 @@
                         </span>
                     </p>
                 </div>
+
+                <!-- Voiture -->
+                <div style="grid-column: 1 / -1;">
+                    <label class="block text-xs font-bold text-gray-600 uppercase tracking-wide">Voiture</label>
+
+                    @if($user->voiture)
+                        <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="text-sm text-gray-600">Immatriculation</div>
+                                <div class="text-lg font-semibold text-gray-900">{{ $user->voiture->num_immatriculation }}</div>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="text-sm text-gray-600">Puissance</div>
+                                <div class="text-lg font-semibold text-gray-900">{{ $user->voiture->puissance_voiture ?? 'N/A' }}</div>
+                            </div>
+                        </div>
+                    @else
+                        <p class="text-lg font-semibold text-gray-900 mt-1">Aucune voiture renseignée</p>
+                    @endif
+                </div>
             </div>
 
             @if($user->beneficiaires->count() > 0)

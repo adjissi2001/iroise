@@ -216,7 +216,6 @@
                     <a href="{{ route('dashboard') }}" class="btn btn-login">Tableau de bord</a>
                 @else
                     <a href="{{ route('login') }}" class="btn btn-login">Connexion</a>
-                    <a href="{{ route('register') }}" class="btn btn-register">Inscription</a>
                 @endauth
             </nav>
         </header>

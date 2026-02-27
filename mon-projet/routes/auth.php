@@ -12,10 +12,8 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    Route::get('register', [RegisteredUserController::class, 'create'])
-        ->name('register');
-
-    Route::post('register', [RegisteredUserController::class, 'store']);
+    // NOTE: Registration route removed from public access. Only admin or referent
+    // users may access registration (see middleware below).
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
@@ -35,7 +33,7 @@ Route::middleware('guest')->group(function () {
         ->name('password.store');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'profile.validated'])->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
 
@@ -56,4 +54,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+});
+
+// Registration routes accessible only to authenticated admin or referent users
+Route::middleware(['auth', 'profile.validated', \App\Http\Middleware\EnsureUserIsAdminOrReferent::class])->group(function () {
+    Route::get('register', [RegisteredUserController::class, 'create'])
+        ->name('register');
+
+    Route::post('register', [RegisteredUserController::class, 'store']);
 });

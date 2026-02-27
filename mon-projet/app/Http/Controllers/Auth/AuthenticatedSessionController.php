@@ -33,6 +33,12 @@ class AuthenticatedSessionController extends Controller
         $profil = $user->profil;
         $role = $profil ? $profil->role : null;
 
+        // If the user's profil is not yet validated, show a banner on their dashboard
+        // instructing them to change their password (do not redirect to profile directly).
+        if ($profil && isset($profil->est_valide) && !$profil->est_valide) {
+            $request->session()->flash('must_update_password', 'Le mot de passe doit être modifié pour accéder aux fonctionnalités du système. Cliquez ici pour modifier.');
+        }
+
         \Log::info('User Login Debug', [
             'user_id' => $user->id,
             'profil' => $profil,

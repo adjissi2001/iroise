@@ -143,7 +143,6 @@
                 <a href="{{ route('dashboard') }}" class="btn btn-login">Tableau de bord</a>
             @else
                 <a href="{{ route('login') }}" class="btn btn-login">Connexion</a>
-                <a href="{{ route('register') }}" class="btn btn-register">Inscription</a>
             @endauth
         </nav>
     </header>
@@ -151,12 +150,20 @@
     <!-- Contenu principal -->
     <main class="main-welcome">
         <div class="welcome-card">
+            @if(session('success'))
+                <div class="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded">
+                    {{ session('success') }}
+                    <div class="mt-2">
+                        <a href="{{ route('dashboard') }}" class="text-blue-600 underline">Aller au tableau de bord</a>
+                    </div>
+                </div>
+            @endif
             <h2>Bienvenue</h2>
             <p>Connectez-vous ou inscrivez-vous pour accéder à votre espace personnel.</p>
             
             <div class="btn-container">
                 <a href="{{ route('login') }}" class="btn btn-login">Connexion</a>
-                <a href="{{ route('register') }}" class="btn btn-register">S'inscrire</a>
+                <span class="btn btn-register" style="cursor:default">Pour vous inscrire, contactez l'association</span>
             </div>
         </div>
     </main>

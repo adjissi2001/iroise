@@ -1,8 +1,14 @@
 <x-guest-layout>
+    @push('styles')
+        <style>
+            [x-cloak] { display: none !important; }
+        </style>
+    @endpush
+
     <h2 class="auth-title">Inscription</h2>
     <p class="auth-subtitle">Crée ton compte pour accéder à ton espace personnel.</p>
 
-    <form method="POST" action="{{ route('register') }}">
+    <form method="POST" action="{{ route('register') }}" x-data="{ hasVoiture: {{ old('has_voiture', '0') == '1' ? 'true' : 'false' }} }">
         @csrf
 
         <div class="form-grid">
@@ -41,11 +47,11 @@
 
             <!-- Téléphone -->
             <div>
-                <x-input-label for="num_tel" value="Téléphone" />
+                <x-input-label for="num_tel" value="Téléphone" required />
                 <x-text-input id="num_tel" class="block mt-1 w-full"
                     type="text"
                     name="num_tel"
-                    value="{{ old('num_tel') }}" />
+                    value="{{ old('num_tel') }}" required />
                 <x-input-error :messages="$errors->get('num_tel')" class="mt-2" />
             </div>
 
@@ -101,6 +107,47 @@
                     <option value="bienfaiteur" @selected(old('role_profil') === 'bienfaiteur')>Bienfaiteur</option>
                 </select>
                 <x-input-error :messages="$errors->get('role_profil')" class="mt-2" />
+            </div>
+
+            <!-- Voiture -->
+            <div style="grid-column: 1 / -1;">
+                <x-input-label for="has_voiture" value="As-tu une voiture ?" />
+                <input type="hidden" name="has_voiture" value="0">
+                <label class="flex items-center gap-2 mt-2">
+                    <input id="has_voiture"
+                        type="checkbox"
+                        name="has_voiture"
+                        value="1"
+                        x-model="hasVoiture"
+                        class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500" />
+                    <span>Oui, j'ai une voiture</span>
+                </label>
+                <x-input-error :messages="$errors->get('has_voiture')" class="mt-2" />
+            </div>
+
+            <div x-cloak x-show="hasVoiture" x-transition>
+                <x-input-label for="num_immatriculation" value="Numéro d'immatriculation" required />
+                <x-text-input id="num_immatriculation" class="block mt-1 w-full"
+                    type="text"
+                    name="num_immatriculation"
+                    value="{{ old('num_immatriculation') }}"
+                    placeholder="Ex : AB-123-CD"
+                    pattern="[A-Za-z]{2}-[0-9]{3}-[A-Za-z]{2}"
+                    title="Format attendu : AB-123-CD"
+                    x-bind:required="hasVoiture" />
+                <x-input-error :messages="$errors->get('num_immatriculation')" class="mt-2" />
+            </div>
+
+            <div x-cloak x-show="hasVoiture" x-transition>
+                <x-input-label for="puissance_voiture" value="Puissance" required />
+                <x-text-input id="puissance_voiture" class="block mt-1 w-full"
+                    type="number"
+                    name="puissance_voiture"
+                    value="{{ old('puissance_voiture') }}"
+                    min="1"
+                    step="1"
+                    x-bind:required="hasVoiture" />
+                <x-input-error :messages="$errors->get('puissance_voiture')" class="mt-2" />
             </div>
 
             <!-- Email -->

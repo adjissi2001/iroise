@@ -1,9 +1,11 @@
 <?php
 
 use Illuminate\Foundation\Application;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Middleware\EnsureProfileValidated;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -11,10 +13,18 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withCommands([
+        __DIR__.'/../app/Console/Commands',
+    ])
+    ->withSchedule(function (Schedule $schedule): void {
+        // Purge automatique des comptes non validés (24h pour le test)
+        $schedule->command('users:purge-unvalidated --hours=24 --force')->hourly();
+    })
     ->withMiddleware(function (Middleware $middleware): void {
         // Enregistrement du middleware admin
         $middleware->alias([
             'admin' => EnsureUserIsAdmin::class,
+            'profile.validated' => EnsureProfileValidated::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

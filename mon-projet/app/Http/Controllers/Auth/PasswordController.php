@@ -24,6 +24,18 @@ class PasswordController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        return back()->with('status', 'password-updated');
+        // If the user's profil exists and was not validated, mark it validated
+        try {
+            $user = $request->user();
+            $profil = $user->profil;
+            if ($profil && isset($profil->est_valide) && !$profil->est_valide) {
+                $profil->est_valide = 1;
+                $profil->save();
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        return redirect()->route('dashboard')->with('success', 'Mot de passe modifié avec succès.');
     }
 }
