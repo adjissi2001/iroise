@@ -20,6 +20,15 @@ class UserRepository
         })->get();
     }
 
+/*************  ✨ Windsurf Command ⭐  *************/
+    /**
+     * Returns a collection of pending users.
+     * A pending user is one who has not been validated yet (profil.est_valide = 0).
+     * The collection is eager loaded with the 'profil' relationship.
+    
+     * @return \Illuminate\Support\Collection
+     */
+/*******  bc2d55a4-e16c-4f9b-835d-3642de472fa5  *******/
     public function allPending(): Collection
     {
         return User::with('profil')->whereHas('profil', function ($q) {

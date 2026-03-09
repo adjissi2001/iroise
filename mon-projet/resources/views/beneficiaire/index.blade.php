@@ -95,6 +95,26 @@
                                title="Voir les détails">
                                 <i class="fas fa-eye"></i>
                             </a>
+
+                            @php
+                                $canToggle = (bool) (auth()->user()->is_admin ?? false)
+                                    || (int) ($beneficiaire->user_id ?? 0) === (int) (auth()->id() ?? 0);
+                                $isActive = (int) ($beneficiaire->actif ?? 1) === 1;
+                            @endphp
+
+                            @if($canToggle)
+                                <form action="{{ route('beneficiaire.toggleActif', $beneficiaire->id_beneficiaire) }}"
+                                      method="POST"
+                                      style="display: inline;"
+                                      onsubmit="return confirm('{{ $isActive ? 'Désactiver' : 'Activer' }} {{ $beneficiaire->prenom }} {{ $beneficiaire->nom }} ?');">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="action-btn btn-edit" title="{{ $isActive ? 'Désactiver' : 'Activer' }}">
+                                        <i class="fas {{ $isActive ? 'fa-user-slash' : 'fa-user-check' }}"></i>
+                                    </button>
+                                </form>
+                            @endif
+
                             <form action="{{ route('beneficiaire.destroy', $beneficiaire->id_beneficiaire) }}" 
                                   method="POST" 
                                   style="display: inline;"

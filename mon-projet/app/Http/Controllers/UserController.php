@@ -237,4 +237,35 @@ class UserController extends Controller
 
         return redirect()->route('user.index')->with('success', 'Utilisateur supprimé.');
     }
+
+    /**
+     * Active/désactive un utilisateur (admin seulement).
+     */
+    public function toggleActif(Request $request, $id)
+    {
+        $authUser = auth()->user();
+        if (!$authUser || !$authUser->is_admin) {
+            abort(403);
+        }
+
+        $targetId = (int) $id;
+        if ($targetId === (int) $authUser->id) {
+            return redirect()->route('user.index')->with('error', 'Vous ne pouvez pas désactiver votre propre compte.');
+        }
+
+        $user = $this->userService->find($targetId);
+        if (!$user) {
+            return redirect()->route('user.index')->with('error', 'Utilisateur introuvable.');
+        }
+
+        $current = (int) ($user->actif ?? optional($user->profil)->actif ?? 1);
+        $nextIsActive = $current !== 1;
+
+        $ok = $this->userService->toggleActif($targetId);
+        if (!$ok) {
+            return redirect()->route('user.index')->with('error', 'Impossible de modifier le statut de cet utilisateur.');
+        }
+
+        return redirect()->route('user.index')->with('success', $nextIsActive ? 'Utilisateur activé.' : 'Utilisateur désactivé.');
+    }
 }

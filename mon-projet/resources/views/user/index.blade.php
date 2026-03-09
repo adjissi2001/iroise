@@ -114,15 +114,44 @@
         </div>
     @else
         <div>
-            <ul class="tabs inline-flex gap-4 mb-4">
-                <li><button id="tab-validated" class="tab-button active">Utilisateurs validés ({{ $validatedUsers->count() }})</button></li>
-                <li><button id="tab-pending" class="tab-button">Inscriptions en attente ({{ $pendingUsers->count() }})</button></li>
-            </ul>
+            @php
+                $pillActive = 'bg-gray-800 text-white';
+                $pillInactive = 'bg-gray-200 text-gray-800 hover:bg-gray-300';
+            @endphp
+
+            <div class="mb-4 flex flex-wrap items-center gap-2">
+                <button id="tab-pending"
+                        type="button"
+                        class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition {{ $pillInactive }}"
+                        aria-controls="pendingList"
+                        aria-selected="false">
+                    Inscriptions en attente ({{ $pendingUsers->count() }})
+                </button>
+                <button id="tab-validated"
+                        type="button"
+                        class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition {{ $pillActive }}"
+                        aria-controls="validatedList"
+                        aria-selected="true">
+                    Utilisateurs validés ({{ $validatedUsers->count() }})
+                </button>
+            </div>
 
             <div id="validatedList" class="overflow-x-auto">
-                <div class="mb-4 flex flex-wrap gap-2">
-                    <button id="tab-lr" class="tab-button active">LR — Référents actifs ({{ ($lrReferents ?? collect())->count() }})</button>
-                    <button id="tab-lar" class="tab-button">LAR — Anciens référents ({{ ($larReferents ?? collect())->count() }})</button>
+                <div class="mb-4 flex flex-wrap items-center gap-2">
+                    <button id="tab-lr"
+                            type="button"
+                            class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition {{ $pillActive }}"
+                            aria-controls="lrList"
+                            aria-selected="true">
+                        LR — Référents actifs ({{ ($lrReferents ?? collect())->count() }})
+                    </button>
+                    <button id="tab-lar"
+                            type="button"
+                            class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition {{ $pillInactive }}"
+                            aria-controls="larList"
+                            aria-selected="false">
+                        LAR — Anciens référents ({{ ($larReferents ?? collect())->count() }})
+                    </button>
                 </div>
 
                 <div id="lrList">
@@ -152,6 +181,14 @@
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         @if(auth()->user()->is_admin)
+                                            <form action="{{ route('user.toggleActif', $user->id) }}" method="POST" onsubmit="return confirm('Désactiver cet utilisateur ?');" style="display:inline;">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="action-btn btn-edit" title="Désactiver">
+                                                    <i class="fa-solid fa-user-slash"></i>
+                                                </button>
+                                            </form>
+
                                             <a href="{{ route('user.edit', $user->id) }}" class="action-btn btn-edit" title="Modifier">
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                             </a>
@@ -198,6 +235,14 @@
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         @if(auth()->user()->is_admin)
+                                            <form action="{{ route('user.toggleActif', $user->id) }}" method="POST" onsubmit="return confirm('Activer cet utilisateur ?');" style="display:inline;">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="action-btn btn-edit" title="Activer">
+                                                    <i class="fa-solid fa-user-check"></i>
+                                                </button>
+                                            </form>
+
                                             <a href="{{ route('user.edit', $user->id) }}" class="action-btn btn-edit" title="Modifier">
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                             </a>
@@ -356,28 +401,50 @@
                     });
                 });
 
+                function setPillActive($btn, active) {
+                    if (!$btn) return;
+                    $btn.classList.remove('bg-gray-800', 'text-white', 'bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
+                    if (active) {
+                        $btn.classList.add('bg-gray-800', 'text-white');
+                        $btn.setAttribute('aria-selected', 'true');
+                    } else {
+                        $btn.classList.add('bg-gray-200', 'text-gray-800', 'hover:bg-gray-300');
+                        $btn.setAttribute('aria-selected', 'false');
+                    }
+                }
+
                 // Tabs for validated / pending
-                document.getElementById('tab-validated').addEventListener('click', function() {
+                var tabValidated = document.getElementById('tab-validated');
+                var tabPending = document.getElementById('tab-pending');
+
+                tabValidated.addEventListener('click', function() {
                     document.getElementById('validatedList').style.display = '';
                     document.getElementById('pendingList').style.display = 'none';
+                    setPillActive(tabValidated, true);
+                    setPillActive(tabPending, false);
                 });
-                document.getElementById('tab-pending').addEventListener('click', function() {
+                tabPending.addEventListener('click', function() {
                     document.getElementById('validatedList').style.display = 'none';
                     document.getElementById('pendingList').style.display = '';
+                    setPillActive(tabValidated, false);
+                    setPillActive(tabPending, true);
                 });
 
                 // Sub-tabs LR/LAR in validated
-                document.getElementById('tab-lr').addEventListener('click', function() {
-                    document.getElementById('tab-lr').classList.add('active');
-                    document.getElementById('tab-lar').classList.remove('active');
+                var tabLr = document.getElementById('tab-lr');
+                var tabLar = document.getElementById('tab-lar');
+
+                tabLr.addEventListener('click', function() {
+                    setPillActive(tabLr, true);
+                    setPillActive(tabLar, false);
                     document.getElementById('lrList').style.display = '';
                     document.getElementById('larList').style.display = 'none';
 
                     try { $('#lrUsersTable').DataTable().columns.adjust(); } catch (e) {}
                 });
-                document.getElementById('tab-lar').addEventListener('click', function() {
-                    document.getElementById('tab-lar').classList.add('active');
-                    document.getElementById('tab-lr').classList.remove('active');
+                tabLar.addEventListener('click', function() {
+                    setPillActive(tabLr, false);
+                    setPillActive(tabLar, true);
                     document.getElementById('lrList').style.display = 'none';
                     document.getElementById('larList').style.display = '';
 

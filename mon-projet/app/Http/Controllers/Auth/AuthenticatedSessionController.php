@@ -49,7 +49,7 @@ class AuthenticatedSessionController extends Controller
 
         // Role-based landing page
         if ($user->is_admin) {
-            return redirect()->intended(route('admin.beneficiaires', absolute: false));
+            return redirect()->intended(route('dashboard', absolute: false));
         }
 
         return match ($role) {

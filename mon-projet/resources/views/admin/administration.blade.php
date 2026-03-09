@@ -64,10 +64,6 @@
             <a href="{{ route('beneficiaire.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-yellow-300 rounded-lg shadow hover:bg-green-700 transition">
                 <i class="fa-solid fa-plus mr-2"></i> Ajouter un bénéficiaire
             </a>
-
-            <a href="{{ route('beneficiaire.index', ['segment' => 'LB']) }}" class="ml-2 inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg shadow hover:bg-gray-900 transition">
-                <i class="fa-solid fa-list mr-2"></i> Voir le module LB/LAB
-            </a>
         </div>
     </div>
 
@@ -112,6 +108,18 @@
                                             onclick="openEditModal({{ json_encode($b) }})">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
+
+                                        <form action="{{ route('beneficiaire.toggleActif', $b->id_beneficiaire) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Désactiver ce bénéficiaire ?');"
+                                            style="display:inline;">
+                                            @csrf
+                                            @method('PATCH')
+
+                                            <button type="submit" class="action-btn btn-edit" title="Désactiver">
+                                                <i class="fa-solid fa-user-slash"></i>
+                                            </button>
+                                        </form>
 
                                         <form action="{{ route('beneficiaire.destroy', $b->id_beneficiaire) }}"
                                             method="POST"
@@ -169,6 +177,18 @@
                                             onclick="openEditModal({{ json_encode($b) }})">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
+
+                                        <form action="{{ route('beneficiaire.toggleActif', $b->id_beneficiaire) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Activer ce bénéficiaire ?');"
+                                            style="display:inline;">
+                                            @csrf
+                                            @method('PATCH')
+
+                                            <button type="submit" class="action-btn btn-edit" title="Activer">
+                                                <i class="fa-solid fa-user-check"></i>
+                                            </button>
+                                        </form>
 
                                         <form action="{{ route('beneficiaire.destroy', $b->id_beneficiaire) }}"
                                             method="POST"

@@ -98,4 +98,36 @@ class BeneficiaireService
 
         return $this->repository->create($payload);
     }
+
+    /**
+     * Active/désactive un bénéficiaire (usage admin/référent).
+     */
+    public function toggleActif(int $beneficiaireId): bool
+    {
+        $beneficiaire = $this->findById($beneficiaireId);
+        if (!$beneficiaire) {
+            return false;
+        }
+
+        $current = (int) ($beneficiaire->actif ?? 1);
+        $next = $current === 1 ? 0 : 1;
+
+        return $this->repository->update($beneficiaireId, ['actif' => $next]);
+    }
+
+    /**
+     * Active/désactive un bénéficiaire appartenant à l'utilisateur.
+     */
+    public function toggleForUser(Authenticatable $user, int $beneficiaireId): bool
+    {
+        $beneficiaire = $this->findForUser($user, $beneficiaireId);
+        if (!$beneficiaire) {
+            return false;
+        }
+
+        $current = (int) ($beneficiaire->actif ?? 1);
+        $next = $current === 1 ? 0 : 1;
+
+        return $this->repository->update($beneficiaireId, ['actif' => $next]);
+    }
 }
