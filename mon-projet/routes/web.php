@@ -8,6 +8,7 @@ use App\Http\Controllers\AdminMissionController;
 use App\Http\Controllers\ReferentController;
 use App\Http\Controllers\BenevolController;
 use App\Http\Controllers\BienvenueController;
+use App\Http\Controllers\AgendaController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\EnsureUserIsAdminOrReferent;
 
@@ -90,6 +91,17 @@ Route::middleware(['auth', 'profile.validated'])->group(function () {
     // Espace bénévole
     Route::get('/benevole', [BenevolController::class, 'index'])->name('benevole.index');
 });
+// Routes Agenda (accessible à tous les utilisateurs authentifiés)
+Route::middleware(['auth', 'profile.validated'])->group(function () {
+    Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
+    Route::get('/agenda/events', [AgendaController::class, 'events'])->name('agenda.events');
+    Route::post('/agenda/missions', [AgendaController::class, 'store'])->name('agenda.store');
+    Route::put('/agenda/missions/{id}', [AgendaController::class, 'update'])->name('agenda.update');
+    Route::post('/agenda/missions/{id}/annuler', [AgendaController::class, 'annuler'])->name('agenda.annuler');
+    Route::post('/agenda/missions/{id}/prendre', [AgendaController::class, 'prendre'])->name('agenda.prendre');
+    Route::post('/agenda/missions/{id}/retirer', [AgendaController::class, 'retirer'])->name('agenda.retirer');
+});
+
 // Routes d'authentification Breeze
 require __DIR__.'/auth.php';
 

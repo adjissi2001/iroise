@@ -33,6 +33,10 @@
                             {{ __('Utilisateurs') }}
                         </x-nav-link>
 
+                        <x-nav-link :href="route('agenda.index')" :active="request()->routeIs('agenda.*')">
+                            {{ __('Agenda') }}
+                        </x-nav-link>
+
                       <!--  <x-nav-link :href="route('register')" :active="request()->routeIs('register')">
                             {{ __('Ajouter un utilisateur') }}
                         </x-nav-link> -->
@@ -46,9 +50,15 @@
                         <x-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
                             {{ __('Utilisateurs') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('agenda.index')" :active="request()->routeIs('agenda.*')">
+                            {{ __('Agenda') }}
+                        </x-nav-link>
                     @else
                         <x-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
                             {{ __('Mes Bénéficiaires') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('agenda.index')" :active="request()->routeIs('agenda.*')">
+                            {{ __('Agenda') }}
                         </x-nav-link>
                     @endif
 
