@@ -143,14 +143,14 @@
                             class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition {{ $pillActive }}"
                             aria-controls="lrList"
                             aria-selected="true">
-                        LR — Référents actifs ({{ ($lrReferents ?? collect())->count() }})
+                        LR — Actifs ({{ ($lrUsers ?? collect())->count() }})
                     </button>
                     <button id="tab-lar"
                             type="button"
                             class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition {{ $pillInactive }}"
                             aria-controls="larList"
                             aria-selected="false">
-                        LAR — Anciens référents ({{ ($larReferents ?? collect())->count() }})
+                        LAR — Inactifs ({{ ($larUsers ?? collect())->count() }})
                     </button>
                 </div>
 
@@ -166,7 +166,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach(($lrReferents ?? collect()) as $user)
+                            @foreach(($lrUsers ?? collect()) as $user)
                                 <tr>
                                     <td data-label="Nom">{{ trim(optional($user->profil)->prenom.' '.optional($user->profil)->nom) }}</td>
                                     <td data-label="Email">{{ $user->email }}</td>
@@ -220,7 +220,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach(($larReferents ?? collect()) as $user)
+                            @foreach(($larUsers ?? collect()) as $user)
                                 <tr>
                                     <td data-label="Nom">{{ trim(optional($user->profil)->prenom.' '.optional($user->profil)->nom) }}</td>
                                     <td data-label="Email">{{ $user->email }}</td>

@@ -30,6 +30,16 @@ class UserService
         return $this->userRepository->allValidated();
     }
 
+    public function listValidatedActifs(): Collection
+    {
+        return $this->userRepository->validatedByActif(true);
+    }
+
+    public function listValidatedInactifs(): Collection
+    {
+        return $this->userRepository->validatedByActif(false);
+    }
+
     public function listPending(): Collection
     {
         return $this->userRepository->allPending();
