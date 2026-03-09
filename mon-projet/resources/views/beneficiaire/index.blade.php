@@ -33,68 +33,84 @@
         </div>
     @endif
 
+    @php
+        $segment = $segment ?? 'LB';
+        $countLB = $countLB ?? 0;
+        $countLAB = $countLAB ?? 0;
+    @endphp
+
+    <div class="mb-4 flex flex-wrap items-center gap-2">
+        <a href="{{ route('beneficiaire.index', ['segment' => 'LB']) }}"
+           class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition {{ $segment === 'LB' ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300' }}">
+            LB — Actifs ({{ $countLB }})
+        </a>
+        <a href="{{ route('beneficiaire.index', ['segment' => 'LAB']) }}"
+           class="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition {{ $segment === 'LAB' ? 'bg-gray-800 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300' }}">
+            LAB — Inactifs ({{ $countLAB }})
+        </a>
+    </div>
+
     @if($beneficiaires->isEmpty())
-        <div class="text-center py-12 text-gray-600">
-            <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
-            <h3 class="mt-4 text-lg font-medium">Aucun bénéficiaire</h3>
-            <p class="mt-1 text-sm">Vous n'avez pas encore de bénéficiaires enregistrés.</p>
-        </div>
-    @else
-        <div class="overflow-x-auto">
-            <table id="beneficiairesTable" class="min-w-full">
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Prénom</th>
-                        <th>Email</th>
-                        <th>Téléphone</th>
-                        <th>Date de naissance</th>
-                        <th>Actions</th>
-                    </tr>
-                    <tr>
-                        <th><input type="text" placeholder="Nom" /></th>
-                        <th><input type="text" placeholder="Prénom" /></th>
-                        <th><input type="text" placeholder="Email" /></th>
-                        <th><input type="text" placeholder="Téléphone" /></th>
-                        <th><input type="text" placeholder="Date" /></th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($beneficiaires as $beneficiaire)
-                        <tr>
-                            <td data-label="Nom">{{ $beneficiaire->nom }}</td>
-                            <td data-label="Prénom">{{ $beneficiaire->prenom }}</td>
-                            <td data-label="Email">{{ $beneficiaire->email ?? 'N/A' }}</td>
-                            <td data-label="Téléphone">{{ $beneficiaire->num_tel ?? 'N/A' }}</td>
-                            <td data-label="Date de naissance">
-                                {{ $beneficiaire->date_naissance ? \Carbon\Carbon::parse($beneficiaire->date_naissance)->format('d/m/Y') : 'N/A' }}
-                            </td>
-                            <td data-label="Actions">
-                                <a href="{{ route('beneficiaire.show', $beneficiaire->id_beneficiaire) }}" 
-                                   class="action-btn btn-view"
-                                   title="Voir les détails">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <form action="{{ route('beneficiaire.destroy', $beneficiaire->id_beneficiaire) }}" 
-                                      method="POST" 
-                                      style="display: inline;"
-                                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer {{ $beneficiaire->prenom }} {{ $beneficiaire->nom }} ?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="action-btn btn-delete" title="Supprimer">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        <div class="mb-4 text-center py-6 text-gray-600">
+            <h3 class="text-lg font-medium">Aucun bénéficiaire</h3>
+            <p class="mt-1 text-sm">
+                {{ $segment === 'LB' ? 'Aucun bénéficiaire actif (LB) à afficher.' : 'Aucun bénéficiaire inactif (LAB) à afficher.' }}
+            </p>
         </div>
     @endif
+
+    <div class="overflow-x-auto">
+        <table id="beneficiairesTable" class="min-w-full">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Email</th>
+                    <th>Téléphone</th>
+                    <th>Date de naissance</th>
+                    <th>Actions</th>
+                </tr>
+                <tr>
+                    <th><input type="text" placeholder="Nom" /></th>
+                    <th><input type="text" placeholder="Prénom" /></th>
+                    <th><input type="text" placeholder="Email" /></th>
+                    <th><input type="text" placeholder="Téléphone" /></th>
+                    <th><input type="text" placeholder="Date" /></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($beneficiaires as $beneficiaire)
+                    <tr>
+                        <td data-label="Nom">{{ $beneficiaire->nom }}</td>
+                        <td data-label="Prénom">{{ $beneficiaire->prenom }}</td>
+                        <td data-label="Email">{{ $beneficiaire->email ?? 'N/A' }}</td>
+                        <td data-label="Téléphone">{{ $beneficiaire->num_tel ?? 'N/A' }}</td>
+                        <td data-label="Date de naissance">
+                            {{ $beneficiaire->date_naissance ? \Carbon\Carbon::parse($beneficiaire->date_naissance)->format('d/m/Y') : 'N/A' }}
+                        </td>
+                        <td data-label="Actions">
+                            <a href="{{ route('beneficiaire.show', $beneficiaire->id_beneficiaire) }}" 
+                               class="action-btn btn-view"
+                               title="Voir les détails">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <form action="{{ route('beneficiaire.destroy', $beneficiaire->id_beneficiaire) }}" 
+                                  method="POST" 
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer {{ $beneficiaire->prenom }} {{ $beneficiaire->nom }} ?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="action-btn btn-delete" title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 
     @push('scripts')
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

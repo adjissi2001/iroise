@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Services\UserService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Profil;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -26,7 +28,104 @@ class UserController extends Controller
         $validatedUsers = $this->userService->listValidated();
         $pendingUsers = $this->userService->listPending();
 
-        return view('user.index', compact('validatedUsers', 'pendingUsers'));
+        $pendingExpirationMinutes = (int) config('app.pending_user_expiration_minutes', 0);
+        if ($pendingExpirationMinutes <= 0) {
+            $pendingExpirationHours = (int) config('app.pending_user_expiration_hours', 48);
+            if ($pendingExpirationHours <= 0) {
+                $pendingExpirationHours = 48;
+            }
+            $pendingExpirationMinutes = $pendingExpirationHours * 60;
+        }
+
+        $pendingCutoff = Carbon::now()->subMinutes($pendingExpirationMinutes);
+        $pendingExpiredCount = $pendingUsers->filter(function ($user) use ($pendingCutoff) {
+            if (empty($user->created_at)) {
+                return false;
+            }
+            try {
+                return Carbon::parse($user->created_at)->lessThanOrEqualTo($pendingCutoff);
+            } catch (\Throwable $e) {
+                return false;
+            }
+        })->count();
+
+        // LR/LAR (dans l'onglet "validés")
+        $lrReferents = $this->userService->listReferentsActifsValidated();
+        $larReferents = $this->userService->listAnciensReferentsValidated();
+
+        return view('user.index', compact(
+            'validatedUsers',
+            'pendingUsers',
+            'lrReferents',
+            'larReferents',
+            'pendingExpirationMinutes',
+            'pendingCutoff',
+            'pendingExpiredCount'
+        ));
+    }
+
+    /**
+     * Suppression manuelle des utilisateurs en attente dépassant le délai (admin seulement)
+     */
+    public function destroyExpiredPending(Request $request)
+    {
+        $authUser = auth()->user();
+        if (!$authUser || !$authUser->is_admin) {
+            abort(403);
+        }
+
+        $minutes = (int) config('app.pending_user_expiration_minutes', 0);
+        if ($minutes <= 0) {
+            $hours = (int) config('app.pending_user_expiration_hours', 48);
+            if ($hours <= 0) {
+                $hours = 48;
+            }
+            $minutes = $hours * 60;
+        }
+
+        $cutoff = Carbon::now()->subMinutes($minutes);
+
+        $query = User::query()
+            ->where('is_admin', 0)
+            ->where('created_at', '<=', $cutoff)
+            ->whereHas('profil', function ($q) {
+                $q->where('est_valide', 0);
+            });
+
+        $deleted = 0;
+        $failed = 0;
+
+        $query->orderBy('id')->chunkById(200, function ($users) use (&$deleted, &$failed, $authUser) {
+            foreach ($users as $user) {
+                // Safety: never delete the current authenticated account.
+                if ((int) $user->id === (int) $authUser->id) {
+                    continue;
+                }
+
+                try {
+                    DB::transaction(function () use ($user, &$deleted) {
+                        try { $user->voiture()->delete(); } catch (\Throwable $e) {}
+                        try { $user->profil()->delete(); } catch (\Throwable $e) {}
+                        try { $user->beneficiaires()->update(['user_id' => null]); } catch (\Throwable $e) {}
+
+                        $user->delete();
+                        $deleted++;
+                    });
+                } catch (\Throwable $e) {
+                    $failed++;
+                }
+            }
+        });
+
+        if ($deleted === 0 && $failed === 0) {
+            return redirect()->route('user.index')->with('success', 'Aucun compte en attente n\'a dépassé le délai.');
+        }
+
+        if ($failed > 0) {
+            return redirect()->route('user.index')->with('error', "Suppression partielle : {$deleted} supprimé(s), {$failed} échec(s).");
+        }
+
+        return redirect()->route('user.index')->with('success', "Suppression terminée : {$deleted} compte(s) expiré(s) supprimé(s).");
     }
 
     /**

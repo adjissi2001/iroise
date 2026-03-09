@@ -161,7 +161,9 @@
     <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="createUserTitle">
         <button type="button" class="modal-close" onclick="closeCreateUserModal()" aria-label="Fermer">&times;</button>
         <h2 id="createUserTitle" class="modal-title">Inscription</h2>
-        <p class="text-sm text-gray-600 mb-4">Crée ton compte pour accéder à ton espace personnel.</p>
+        <p class="text-sm text-gray-600 mb-4">
+            Le mot de passe est généré automatiquement et envoyé par email.
+        </p>
 
         @if ($errors->any())
             <div class="modal-alert modal-alert-error" role="alert">
@@ -259,17 +261,6 @@
                     <label for="email" class="form-label">Email *</label>
                     <x-text-input id="email" class="form-control" type="email" name="email" value="{{ old('email') }}" required />
                     <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                </div>
-
-                <div class="form-group">
-                    <label for="password" class="form-label">Mot de passe *</label>
-                    <x-text-input id="password" class="form-control" type="password" name="password" required />
-                    <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                </div>
-
-                <div class="md:col-span-2 form-group">
-                    <label for="password_confirmation" class="form-label">Confirmer le mot de passe *</label>
-                    <x-text-input id="password_confirmation" class="form-control" type="password" name="password_confirmation" required />
                 </div>
             </div>
 

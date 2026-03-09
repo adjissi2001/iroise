@@ -9,6 +9,7 @@ use App\Http\Controllers\ReferentController;
 use App\Http\Controllers\BenevolController;
 use App\Http\Controllers\BienvenueController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\EnsureUserIsAdminOrReferent;
 
 
 // 🏠 Page d'accueil publique
@@ -46,7 +47,9 @@ Route::middleware(['auth', 'profile.validated'])->group(function () {
     Route::delete('/beneficiaires/{id}', [BeneficiaireController::class, 'destroy'])->name('beneficiaire.destroy');
     
     // Interface d'administration
-    Route::get('/administration', [AdminController::class, 'selectBeneficiaires'])->name('admin.beneficiaires');
+    Route::get('/administration', [AdminController::class, 'selectBeneficiaires'])
+        ->middleware([EnsureUserIsAdminOrReferent::class])
+        ->name('admin.beneficiaires');
 
     // Admin Missions (module séparé)
     Route::middleware(['profile.validated', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -72,6 +75,9 @@ Route::middleware(['auth', 'profile.validated', 'admin'])->group(function () {
     Route::get('/utilisateurs/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
     Route::put('/utilisateurs/{id}', [UserController::class, 'update'])->name('user.update');
     Route::delete('/utilisateurs/{id}', [UserController::class, 'destroy'])->name('user.destroy');
+
+    // Suppression manuelle des inscriptions en attente dépassant le délai
+    Route::delete('/utilisateurs/pending/expired', [UserController::class, 'destroyExpiredPending'])->name('user.destroyExpiredPending');
 });
 
 // Routes pour l'espace référent (authentification requise)

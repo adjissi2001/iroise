@@ -17,12 +17,20 @@ class BeneficiaireController extends Controller
     /**
      * Affichage de la liste des bénéficiaires
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Afficher TOUS les bénéficiaires
-        $beneficiaires = $this->beneficiaireService->listAll();
+        $segment = strtoupper((string) $request->query('segment', 'LB'));
+        if (!in_array($segment, ['LB', 'LAB'], true)) {
+            $segment = 'LB';
+        }
 
-        return view('beneficiaire.index', compact('beneficiaires'));
+        $showActif = $segment === 'LB';
+
+        $beneficiaires = $this->beneficiaireService->listAllByActif($showActif);
+        $countLB = $this->beneficiaireService->countAllByActif(true);
+        $countLAB = $this->beneficiaireService->countAllByActif(false);
+
+        return view('beneficiaire.index', compact('beneficiaires', 'segment', 'countLB', 'countLAB'));
     }
 
     /**

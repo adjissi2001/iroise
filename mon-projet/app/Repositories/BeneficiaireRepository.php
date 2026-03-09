@@ -16,6 +16,22 @@ class BeneficiaireRepository
     }
 
     /**
+     * Récupère tous les bénéficiaires filtrés par statut d'activité.
+     */
+    public function allByActif(bool $actif): Collection
+    {
+        return Beneficiaire::where('actif', (int) $actif)->get();
+    }
+
+    /**
+     * Compte tous les bénéficiaires filtrés par statut d'activité.
+     */
+    public function countByActif(bool $actif): int
+    {
+        return Beneficiaire::where('actif', (int) $actif)->count();
+    }
+
+    /**
      * Récupère les bénéficiaires appartenant à un utilisateur.
      */
     public function forUser(int $userId): Collection

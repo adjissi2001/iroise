@@ -33,6 +33,16 @@ class UserService
         return $this->userRepository->allPending();
     }
 
+    public function listReferentsActifsValidated(): Collection
+    {
+        return $this->userRepository->referentsValidated(true);
+    }
+
+    public function listAnciensReferentsValidated(): Collection
+    {
+        return $this->userRepository->referentsValidated(false);
+    }
+
     public function find(int $id): ?User
     {
         return $this->userRepository->find($id);

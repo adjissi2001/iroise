@@ -30,6 +30,22 @@ class BeneficiaireService
     }
 
     /**
+     * Liste TOUS les bénéficiaires filtrés par statut d'activité.
+     */
+    public function listAllByActif(bool $actif): Collection
+    {
+        return $this->repository->allByActif($actif);
+    }
+
+    /**
+     * Compte TOUS les bénéficiaires filtrés par statut d'activité.
+     */
+    public function countAllByActif(bool $actif): int
+    {
+        return $this->repository->countByActif($actif);
+    }
+
+    /**
      * Retourne un bénéficiaire appartenant à l'utilisateur, ou null.
      */
     public function findForUser(Authenticatable $user, int $beneficiaireId): ?Beneficiaire

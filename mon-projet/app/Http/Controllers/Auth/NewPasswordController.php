@@ -47,11 +47,24 @@ class NewPasswordController extends Controller
                     'remember_token' => Str::random(60),
                 ])->save();
 
+                // Activate the account after the password is set via the activation link.
+                try {
+                    if (isset($user->actif) && (int) ($user->actif ?? 0) === 0) {
+                        $user->actif = 1;
+                        $user->save();
+                    }
+                } catch (\Throwable $e) {
+                    // Non critique
+                }
+
                 // If the user's profil exists and was not validated, mark it validated
                 try {
                     $profil = $user->profil;
                     if ($profil && isset($profil->est_valide) && !$profil->est_valide) {
                         $profil->est_valide = 1;
+                        if (isset($profil->actif) && (int) ($profil->actif ?? 0) === 0) {
+                            $profil->actif = 1;
+                        }
                         $profil->save();
                     }
                 } catch (\Throwable $e) {

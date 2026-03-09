@@ -56,6 +56,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Pending User Expiration (Manual Review)
+    |--------------------------------------------------------------------------
+    |
+    | Used to highlight "inscriptions en attente" that exceed the configured
+    | delay, and for the admin manual cleanup button.
+    |
+    */
+
+    // Prefer minutes when set (useful for quick testing). Falls back to hours.
+    'pending_user_expiration_minutes' => (int) env('PENDING_USER_EXPIRATION_MINUTES', 0),
+
+    'pending_user_expiration_hours' => (int) env('PENDING_USER_EXPIRATION_HOURS', 48),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

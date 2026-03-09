@@ -59,10 +59,14 @@
             </div>
         @endif
 
-        <h2 class="font-semibold text-xl text-gray-800">Liste des Bénéficiaires</h2>
+        <h2 class="font-semibold text-xl text-gray-800">Gestion des membres</h2>
         <div class="mt-4">
             <a href="{{ route('beneficiaire.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-yellow-300 rounded-lg shadow hover:bg-green-700 transition">
                 <i class="fa-solid fa-plus mr-2"></i> Ajouter un bénéficiaire
+            </a>
+
+            <a href="{{ route('beneficiaire.index', ['segment' => 'LB']) }}" class="ml-2 inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg shadow hover:bg-gray-900 transition">
+                <i class="fa-solid fa-list mr-2"></i> Voir le module LB/LAB
             </a>
         </div>
     </div>
@@ -73,60 +77,213 @@
         </div>
     @endif
 
-    @if(!empty($beneficiaires))
-        <div class="overflow-x-auto">
-            <table id="beneficiairesTable" class="min-w-full">
-                <thead>
-                    <tr>
-                        <th>Nom</th>
-                        <th>Prénom</th>
-                        <th>Date de naissance</th>
-                        <th>Téléphone</th>
-                        <th>Actions</th>
-                    </tr>
-                    <tr>
-                        <th><input type="text" placeholder="Nom" /></th>
-                        <th><input type="text" placeholder="Prénom" /></th>
-                        <th><input type="text" placeholder="Date" /></th>
-                        <th><input type="text" placeholder="Téléphone" /></th>
-                        <th></th>
-                    </tr>
-                </thead>
+    <div class="space-y-10">
+        <section>
+            <h3 class="font-semibold text-lg text-gray-800">LB : Liste Bénéficiaires</h3>
 
-                <tbody>
-                    @foreach ($beneficiaires as $b)
-                        <tr>
-                            <td data-label="Nom">{{ $b->nom }}</td>
-                            <td data-label="Prénom">{{ $b->prenom }}</td>
-                            <td data-label="Date de naissance">{{ $b->date_naissance }}</td>
-                            <td data-label="Téléphone">{{ $b->num_tel }}</td>
-                            <td data-label="Actions" style="text-align: center;">
-                                <!-- Modifier -->
-                                <button type="button" class="action-btn btn-edit" title="Modifier" 
-                                    onclick="openEditModal({{ json_encode($b) }})">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </button>
+            @if(($lbBeneficiaires ?? collect())->isNotEmpty())
+                <div class="overflow-x-auto mt-3">
+                    <table id="beneficiairesTable" class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Date de naissance</th>
+                                <th>Téléphone</th>
+                                <th>Actions</th>
+                            </tr>
+                            <tr>
+                                <th><input type="text" placeholder="Nom" /></th>
+                                <th><input type="text" placeholder="Prénom" /></th>
+                                <th><input type="text" placeholder="Date" /></th>
+                                <th><input type="text" placeholder="Téléphone" /></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($lbBeneficiaires as $b)
+                                <tr>
+                                    <td data-label="Nom">{{ $b->nom }}</td>
+                                    <td data-label="Prénom">{{ $b->prenom }}</td>
+                                    <td data-label="Date de naissance">{{ $b->date_naissance }}</td>
+                                    <td data-label="Téléphone">{{ $b->num_tel }}</td>
+                                    <td data-label="Actions" style="text-align: center;">
+                                        <button type="button" class="action-btn btn-edit" title="Modifier"
+                                            onclick="openEditModal({{ json_encode($b) }})">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
 
-                                <form action="{{ route('beneficiaire.destroy', $b->id_beneficiaire) }}"
-                                    method="POST"
-                                    onsubmit="return confirm('Confirmer la suppression ?');"
-                                    style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
+                                        <form action="{{ route('beneficiaire.destroy', $b->id_beneficiaire) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Confirmer la suppression ?');"
+                                            style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
 
-                                    <button type="submit" class="action-btn btn-delete">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @else
-        <p>Aucun bénéficiaire trouvé.</p>
-    @endif
+                                            <button type="submit" class="action-btn btn-delete">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <p class="mt-3">Aucun bénéficiaire trouvé.</p>
+            @endif
+        </section>
+
+        <section>
+            <h3 class="font-semibold text-lg text-gray-800">LAB : Liste Anciens Bénéficiaires</h3>
+
+            @if(($labBeneficiaires ?? collect())->isNotEmpty())
+                <div class="overflow-x-auto mt-3">
+                    <table id="anciensBeneficiairesTable" class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prénom</th>
+                                <th>Date de naissance</th>
+                                <th>Téléphone</th>
+                                <th>Actions</th>
+                            </tr>
+                            <tr>
+                                <th><input type="text" placeholder="Nom" /></th>
+                                <th><input type="text" placeholder="Prénom" /></th>
+                                <th><input type="text" placeholder="Date" /></th>
+                                <th><input type="text" placeholder="Téléphone" /></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($labBeneficiaires as $b)
+                                <tr>
+                                    <td data-label="Nom">{{ $b->nom }}</td>
+                                    <td data-label="Prénom">{{ $b->prenom }}</td>
+                                    <td data-label="Date de naissance">{{ $b->date_naissance }}</td>
+                                    <td data-label="Téléphone">{{ $b->num_tel }}</td>
+                                    <td data-label="Actions" style="text-align: center;">
+                                        <button type="button" class="action-btn btn-edit" title="Modifier"
+                                            onclick="openEditModal({{ json_encode($b) }})">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+
+                                        <form action="{{ route('beneficiaire.destroy', $b->id_beneficiaire) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Confirmer la suppression ?');"
+                                            style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button type="submit" class="action-btn btn-delete">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <p class="mt-3">Aucun ancien bénéficiaire trouvé.</p>
+            @endif
+        </section>
+
+        <section>
+            <h3 class="font-semibold text-lg text-gray-800">LR : Liste Référents</h3>
+
+            @if(($lrReferents ?? collect())->isNotEmpty())
+                <div class="overflow-x-auto mt-3">
+                    <table id="referentsTable" class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Email</th>
+                                <th>Actif</th>
+                                <th>Actions</th>
+                            </tr>
+                            <tr>
+                                <th><input type="text" placeholder="Nom" /></th>
+                                <th><input type="text" placeholder="Email" /></th>
+                                <th><input type="text" placeholder="Actif" /></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($lrReferents as $u)
+                                <tr>
+                                    <td data-label="Nom">{{ $u->display_name }}</td>
+                                    <td data-label="Email">{{ $u->email }}</td>
+                                    <td data-label="Actif">{{ (int) ($u->actif ?? 1) === 1 ? 'Oui' : 'Non' }}</td>
+                                    <td data-label="Actions" style="text-align: center;">
+                                        <a href="{{ route('user.show', $u->id) }}" class="action-btn btn-view" title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        @if(auth()->user()->is_admin)
+                                            <a href="{{ route('user.edit', $u->id) }}" class="action-btn btn-edit" title="Modifier">
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </a>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <p class="mt-3">Aucun référent trouvé.</p>
+            @endif
+        </section>
+
+        <section>
+            <h3 class="font-semibold text-lg text-gray-800">LAR : Liste Anciens Référents</h3>
+
+            @if(($larReferents ?? collect())->isNotEmpty())
+                <div class="overflow-x-auto mt-3">
+                    <table id="anciensReferentsTable" class="min-w-full">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Email</th>
+                                <th>Actif</th>
+                                <th>Actions</th>
+                            </tr>
+                            <tr>
+                                <th><input type="text" placeholder="Nom" /></th>
+                                <th><input type="text" placeholder="Email" /></th>
+                                <th><input type="text" placeholder="Actif" /></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($larReferents as $u)
+                                <tr>
+                                    <td data-label="Nom">{{ $u->display_name }}</td>
+                                    <td data-label="Email">{{ $u->email }}</td>
+                                    <td data-label="Actif">{{ (int) ($u->actif ?? 0) === 1 ? 'Oui' : 'Non' }}</td>
+                                    <td data-label="Actions" style="text-align: center;">
+                                        <a href="{{ route('user.show', $u->id) }}" class="action-btn btn-view" title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        @if(auth()->user()->is_admin)
+                                            <a href="{{ route('user.edit', $u->id) }}" class="action-btn btn-edit" title="Modifier">
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </a>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <p class="mt-3">Aucun ancien référent trouvé.</p>
+            @endif
+        </section>
+    </div>
 
     <!-- Modal d'édition -->
     <div id="editModal" class="modal" style="display: none;">
@@ -197,6 +354,37 @@
                     modal.style.display = 'none';
                 }
             }
+
+            // Init DataTables for extra tables on this page (keep beneficiaires.js for #beneficiairesTable)
+            $(document).ready(function () {
+                function initTable(id) {
+                    var $table = $('#' + id);
+                    if ($table.length === 0) return;
+
+                    var dt = $table.DataTable({
+                        orderCellsTop: true,
+                        fixedHeader: true,
+                        pageLength: 10,
+                        lengthMenu: [5, 10, 25, 50],
+                        language: {
+                            url: "//cdn.datatables.net/plug-ins/1.13.8/i18n/fr-FR.json"
+                        }
+                    });
+
+                    // Recherche par colonne (2e ligne du header)
+                    $('#' + id + ' thead tr:eq(1) th').each(function (i) {
+                        $('input', this).on('keyup change clear', function () {
+                            if (dt.column(i).search() !== this.value) {
+                                dt.column(i).search(this.value).draw();
+                            }
+                        });
+                    });
+                }
+
+                initTable('anciensBeneficiairesTable');
+                initTable('referentsTable');
+                initTable('anciensReferentsTable');
+            });
         </script>
     @endpush
 @endsection

@@ -21,8 +21,8 @@
                     @endphp
 
                     @if(auth()->user()->is_admin)
-                        <x-nav-link :href="route('admin.beneficiaires')" :active="request()->routeIs('admin.beneficiaires')">
-                            {{ __('Bénéficiaires') }}
+                        <x-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
+                            {{ __('Mes Bénéficiaires') }}
                         </x-nav-link>
 
                         <x-nav-link :href="route('admin.missions.index')" :active="request()->routeIs('admin.missions.*')">
@@ -113,8 +113,8 @@
             @endphp
             
             @if(auth()->user()->is_admin)
-                <x-responsive-nav-link :href="route('admin.beneficiaires')" :active="request()->routeIs('admin.beneficiaires')">
-                    {{ __('Bénéficiaires') }}
+                <x-responsive-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
+                    {{ __('Mes Bénéficiaires') }}
                 </x-responsive-nav-link>
                 
                 <x-responsive-nav-link :href="route('admin.missions.index')" :active="request()->routeIs('admin.missions.*')">
