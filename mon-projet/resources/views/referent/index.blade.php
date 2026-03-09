@@ -111,6 +111,22 @@
                                    title="Voir les détails">
                                     <i class="fas fa-eye"></i>
                                 </a>
+
+                                @php
+                                    $isActive = (int) ($beneficiaire->actif ?? 1) === 1;
+                                @endphp
+
+                                <form action="{{ route('beneficiaire.toggleActif', $beneficiaire->id_beneficiaire) }}"
+                                      method="POST"
+                                      style="display: inline;"
+                                      onsubmit="return confirm('{{ $isActive ? 'Désactiver' : 'Activer' }} ' + @json($beneficiaire->prenom) + ' ' + @json($beneficiaire->nom) + ' ?');">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="action-btn btn-edit" title="{{ $isActive ? 'Désactiver' : 'Activer' }}">
+                                        <i class="fas {{ $isActive ? 'fa-user-slash' : 'fa-user-check' }}"></i>
+                                    </button>
+                                </form>
+
                                 <form action="{{ route('beneficiaire.destroy', $beneficiaire->id_beneficiaire) }}"
                                       method="POST"
                                       style="display: inline;"

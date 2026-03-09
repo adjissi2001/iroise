@@ -101,6 +101,40 @@ class BeneficiaireController extends Controller
         return redirect()->back()->with('success', 'Bénéficiaire supprimé.');
     }
 
+    /**
+     * Active/désactive un bénéficiaire (admin/référent).
+     */
+    public function toggleActif(Request $request, $id)
+    {
+        $user = auth()->user();
+        $beneficiaireId = (int) $id;
+
+        $beneficiaire = $this->beneficiaireService->findById($beneficiaireId);
+        if (!$beneficiaire) {
+            return redirect()->back()->with('error', 'Bénéficiaire introuvable.');
+        }
+
+        $current = (int) ($beneficiaire->actif ?? 1);
+        $nextIsActive = $current !== 1;
+
+        $roleProfil = optional($user?->profil)->role;
+
+        if ($user && ((bool) ($user->is_admin ?? false) || $roleProfil === 'referent')) {
+            $ok = $this->beneficiaireService->toggleActif($beneficiaireId);
+        } else {
+            $ok = $this->beneficiaireService->toggleForUser($user, $beneficiaireId);
+        }
+
+        if (!$ok) {
+            return redirect()->back()->with('error', 'Action non autorisée ou bénéficiaire introuvable.');
+        }
+
+        return redirect()->back()->with(
+            'success',
+            $nextIsActive ? 'Bénéficiaire activé.' : 'Bénéficiaire désactivé.'
+        );
+    }
+
 
 
 

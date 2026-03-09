@@ -27,10 +27,16 @@ class Mission extends Model
         'kilometrage',
         'remarques',
         'etat_mission',
+        'benevole_id',
     ];
 
     public function categorie()
     {
         return $this->belongsTo(\App\Models\Categorie::class, 'id_categorie', 'id_categorie');
+    }
+
+    public function benevole()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'benevole_id');
     }
 }

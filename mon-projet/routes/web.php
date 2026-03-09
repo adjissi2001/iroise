@@ -13,11 +13,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\EnsureUserIsAdminOrReferent;
 
 
-// 🏠 Page d'accueil publique
+//  Page d'accueil publique
 Route::get('/', [BienvenueController::class, 'index'])->name('home');
 Route::get('/bienvenue', [BienvenueController::class, 'index'])->name('bienvenue');
 
-// 📊 Dashboard (authentification requise)
+//  Dashboard (authentification requise)
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'profile.validated', 'verified'])->name('dashboard');
@@ -29,7 +29,7 @@ Route::middleware(['auth', 'profile.validated'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// 🏥 Routes pour les bénéficiaires (authentification requise)
+//  Routes pour les bénéficiaires (authentification requise)
 Route::middleware(['auth', 'profile.validated'])->group(function () {
     // Liste des bénéficiaires
     Route::get('/beneficiaires', [BeneficiaireController::class, 'index'])->name('beneficiaire.index');
@@ -37,6 +37,10 @@ Route::middleware(['auth', 'profile.validated'])->group(function () {
     // Création d'un bénéficiaire (AVANT la route {id})
     Route::get('/beneficiaires/create', [BeneficiaireController::class, 'create'])->name('beneficiaire.create');
     Route::post('/beneficiaires', [BeneficiaireController::class, 'store'])->name('beneficiaire.store');
+
+    // Activer / désactiver un bénéficiaire
+    Route::patch('/beneficiaires/{id}/toggle-actif', [BeneficiaireController::class, 'toggleActif'])
+        ->name('beneficiaire.toggleActif');
     
     // Détail d'un bénéficiaire
     Route::get('/beneficiaires/{id}', [BeneficiaireController::class, 'show'])->name('beneficiaire.show');
@@ -52,8 +56,8 @@ Route::middleware(['auth', 'profile.validated'])->group(function () {
         ->middleware([EnsureUserIsAdminOrReferent::class])
         ->name('admin.beneficiaires');
 
-    // Admin Missions (module séparé)
-    Route::middleware(['profile.validated', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Admin Missions (admin + référent)
+    Route::middleware(['profile.validated', EnsureUserIsAdminOrReferent::class])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/missions', [AdminMissionController::class, 'index'])->name('missions.index');
         Route::post('/missions', [AdminMissionController::class, 'store'])->name('missions.store');
         Route::get('/missions/{mission}/edit', [AdminMissionController::class, 'edit'])->name('missions.edit');
@@ -76,6 +80,9 @@ Route::middleware(['auth', 'profile.validated', 'admin'])->group(function () {
     Route::get('/utilisateurs/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
     Route::put('/utilisateurs/{id}', [UserController::class, 'update'])->name('user.update');
     Route::delete('/utilisateurs/{id}', [UserController::class, 'destroy'])->name('user.destroy');
+
+    // Activer / désactiver un utilisateur (admin seulement)
+    Route::patch('/utilisateurs/{id}/toggle-actif', [UserController::class, 'toggleActif'])->name('user.toggleActif');
 
     // Suppression manuelle des inscriptions en attente dépassant le délai
     Route::delete('/utilisateurs/pending/expired', [UserController::class, 'destroyExpiredPending'])->name('user.destroyExpiredPending');

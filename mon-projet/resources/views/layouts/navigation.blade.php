@@ -41,9 +41,9 @@
                             {{ __('Ajouter un utilisateur') }}
                         </x-nav-link> -->
                     @elseif($roleProfil === 'referent')
-                        <x-responsive-nav-link :href="route('admin.missions.index')" :active="request()->routeIs('admin.missions.*')">
+                        <x-nav-link :href="route('admin.missions.index')" :active="request()->routeIs('admin.missions.*')">
                             {{ __('Missions') }}
-                        </x-responsive-nav-link>
+                        </x-nav-link>
                         <x-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
                             {{ __('Mes Bénéficiaires') }}
                         </x-nav-link>

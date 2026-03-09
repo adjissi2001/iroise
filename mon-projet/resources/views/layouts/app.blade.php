@@ -15,8 +15,8 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @stack('styles')
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-hero">
+    <body class="font-sans antialiased" style="display:flex; flex-direction:column; min-height:100vh; margin:0;">
+        <div class="bg-hero" style="flex:1;">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
@@ -37,7 +37,7 @@
             </main>
         </div>
         <!-- Global footer -->
-        <footer class="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 mt-8">
+        <footer class="bg-gray-100 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700" style="margin-top:auto;">
             <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center text-sm text-gray-700 dark:text-gray-300">
                 <div class="mb-4 sm:mb-0 text-center sm:text-left">
                     <strong>Association Iroise</strong><br>
