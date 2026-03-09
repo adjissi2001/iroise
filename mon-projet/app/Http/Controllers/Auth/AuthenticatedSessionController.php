@@ -49,12 +49,15 @@ class AuthenticatedSessionController extends Controller
 
         // Role-based landing page
         if ($user->is_admin) {
-            return redirect()->intended(route('dashboard', absolute: false));
+            // Admins should always land on their dashboard.
+            // Using intended() can redirect to a previous role-specific URL (e.g. /benevole).
+            return redirect()->route('dashboard');
         }
 
         return match ($role) {
             'benevole' => redirect()->intended(route('benevole.index', absolute: false)),
-            'referent' => redirect()->intended(route('referent.index', absolute: false)),
+            // Default landing for referents is the shared dashboard.
+            'referent' => redirect()->intended(route('dashboard', absolute: false)),
             default => redirect()->intended(route('dashboard', absolute: false)),
         };
     }

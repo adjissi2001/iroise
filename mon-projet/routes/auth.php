@@ -33,7 +33,7 @@ Route::middleware('guest')->group(function () {
         ->name('password.store');
 });
 
-Route::middleware(['auth', 'profile.validated'])->group(function () {
+Route::middleware(['auth', 'profile.validated', 'no.cache'])->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
 
@@ -57,7 +57,7 @@ Route::middleware(['auth', 'profile.validated'])->group(function () {
 });
 
 // Registration routes accessible only to authenticated admin or referent users
-Route::middleware(['auth', 'profile.validated', \App\Http\Middleware\EnsureUserIsAdminOrReferent::class])->group(function () {
+Route::middleware(['auth', 'profile.validated', 'no.cache', \App\Http\Middleware\EnsureUserIsAdminOrReferent::class])->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
 

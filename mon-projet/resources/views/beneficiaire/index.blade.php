@@ -13,8 +13,9 @@
         </h2>
         @php
             $roleProfil = optional(auth()->user()->profil)->role;
+            $canCreateBeneficiaire = (bool) (auth()->user()->is_admin ?? false) || in_array($roleProfil, ['referent', 'benevole']);
         @endphp
-        @if(in_array($roleProfil, ['referent', 'benevole']))
+        @if($canCreateBeneficiaire)
             <a href="{{ route('beneficiaire.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition">
                 <i class="fas fa-plus mr-2"></i> Ajouter un bénéficiaire
             </a>

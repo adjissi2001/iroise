@@ -140,6 +140,11 @@ class BeneficiaireController extends Controller
 
     private function authorizeRole()
         {
+            $user = auth()->user();
+            if ($user && (bool) ($user->is_admin ?? false)) {
+                return;
+            }
+
             $roleProfil = optional(auth()->user()->profil)->role;
 
             if (!in_array($roleProfil, ['referent', 'benevole'])) {
