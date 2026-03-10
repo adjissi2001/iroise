@@ -55,8 +55,8 @@ Route::middleware(['auth', 'profile.validated', 'no.cache'])->group(function () 
         ->middleware([EnsureUserIsAdminOrReferent::class])
         ->name('admin.beneficiaires');
 
-    // Admin Missions (module séparé)
-    Route::middleware(['profile.validated', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Admin Missions (module séparé) — accessible aux admins ET référents
+    Route::middleware([EnsureUserIsAdminOrReferent::class])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/missions', [AdminMissionController::class, 'index'])->name('missions.index');
         Route::post('/missions', [AdminMissionController::class, 'store'])->name('missions.store');
         Route::get('/missions/{mission}/edit', [AdminMissionController::class, 'edit'])->name('missions.edit');

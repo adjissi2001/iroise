@@ -25,7 +25,12 @@ Route::middleware('guest')->group(function () {
 
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
         ->name('password.email');
+});
 
+// Password reset (also used as "activation" link for new accounts).
+// This must remain accessible even if another account is currently logged in
+// in the same browser. If the email differs, we log out the current session.
+Route::middleware(['no.cache', \App\Http\Middleware\LogoutIfDifferentResetEmail::class])->group(function () {
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,15 +12,28 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 
 class NewPasswordController extends Controller
 {
     /**
      * Display the password reset view.
      */
-    public function create(Request $request): View
+    public function create(Request $request): View|RedirectResponse
     {
+        $email = (string) $request->query('email', '');
+        if ($email !== '') {
+            $user = User::query()->with('profil')->where('email', $email)->first();
+            if ($user && !$user->is_admin) {
+                $profil = $user->profil;
+                $isPendingActivation = $profil && isset($profil->est_valide) && !(bool) $profil->est_valide;
+                if ($isPendingActivation && $this->isActivationWindowExpired($user)) {
+                    return redirect()->route('login')
+                        ->with('error', 'Lien expiré : le délai d\'activation est dépassé. Merci de contacter un administrateur.');
+                }
+            }
+        }
+
         return view('auth.reset-password', ['request' => $request]);
     }
 
@@ -35,6 +49,17 @@ class NewPasswordController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
+
+        $email = (string) $request->input('email');
+        $user = User::query()->with('profil')->where('email', $email)->first();
+        if ($user && !$user->is_admin) {
+            $profil = $user->profil;
+            $isPendingActivation = $profil && isset($profil->est_valide) && !(bool) $profil->est_valide;
+            if ($isPendingActivation && $this->isActivationWindowExpired($user)) {
+                return back()->withInput($request->only('email'))
+                    ->withErrors(['email' => 'Compte expiré : le délai d\'activation est dépassé. Merci de contacter un administrateur.']);
+            }
+        }
 
         // Here we will attempt to reset the user's password. If it is successful we
         // will update the password on an actual user model and persist it to the
@@ -82,5 +107,36 @@ class NewPasswordController extends Controller
                     ? redirect()->route('login')->with('status', __($status))
                     : back()->withInput($request->only('email'))
                         ->withErrors(['email' => __($status)]);
+    }
+
+    private function isActivationWindowExpired(User $user): bool
+    {
+        if (empty($user->created_at)) {
+            return false;
+        }
+
+        $now = Carbon::now();
+
+        $resetExpireMinutes = (int) config('auth.passwords.users.expire', 60);
+        if ($resetExpireMinutes <= 0) {
+            $resetExpireMinutes = 60;
+        }
+
+        $pendingMinutes = (int) config('app.pending_user_expiration_minutes', 0);
+        if ($pendingMinutes <= 0) {
+            $pendingHours = (int) config('app.pending_user_expiration_hours', 48);
+            if ($pendingHours <= 0) {
+                $pendingHours = 48;
+            }
+            $pendingMinutes = $pendingHours * 60;
+        }
+
+        $activationWindowMinutes = min($resetExpireMinutes, $pendingMinutes);
+
+        try {
+            return Carbon::parse($user->created_at)->lessThanOrEqualTo($now->copy()->subMinutes($activationWindowMinutes));
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 }
