@@ -29,9 +29,14 @@
                             {{ __('Missions') }}
                         </x-nav-link>
 
+                        <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                            {{ __('Catégories') }}
+                        </x-nav-link>
+
                         <x-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
                             {{ __('Utilisateurs') }}
                         </x-nav-link>
+                        
 
                       <!--  <x-nav-link :href="route('register')" :active="request()->routeIs('register')">
                             {{ __('Ajouter un utilisateur') }}
@@ -119,6 +124,10 @@
                 
                 <x-responsive-nav-link :href="route('admin.missions.index')" :active="request()->routeIs('admin.missions.*')">
                     {{ __('Missions') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                    {{ __('Catégories') }}
                 </x-responsive-nav-link>
 
                 <x-responsive-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">

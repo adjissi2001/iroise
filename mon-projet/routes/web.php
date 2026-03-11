@@ -5,6 +5,7 @@ use App\Http\Controllers\BeneficiaireController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminMissionController;
+use App\Http\Controllers\AdminCategorieController;
 use App\Http\Controllers\ReferentController;
 use App\Http\Controllers\BenevolController;
 use App\Http\Controllers\BienvenueController;
@@ -86,6 +87,18 @@ Route::middleware(['auth', 'profile.validated', 'admin', 'no.cache'])->group(fun
     // Suppression manuelle des inscriptions en attente dépassant le délai
     Route::delete('/utilisateurs/pending/expired', [UserController::class, 'destroyExpiredPending'])->name('user.destroyExpiredPending');
 });
+
+// 📚 Catégories de mission (admin seulement)
+Route::middleware(['auth', 'profile.validated', 'admin', 'no.cache'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/categories', [AdminCategorieController::class, 'index'])->name('categories.index');
+        Route::post('/categories', [AdminCategorieController::class, 'store'])->name('categories.store');
+        Route::get('/categories/{id}/edit', [AdminCategorieController::class, 'edit'])->name('categories.edit');
+        Route::put('/categories/{id}', [AdminCategorieController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{id}', [AdminCategorieController::class, 'destroy'])->name('categories.destroy');
+    });
 
 // Routes pour l'espace référent (authentification requise)
 Route::middleware(['auth', 'profile.validated', 'no.cache'])->group(function () {
