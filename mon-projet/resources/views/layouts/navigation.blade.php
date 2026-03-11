@@ -29,10 +29,6 @@
                             {{ __('Missions') }}
                         </x-nav-link>
 
-                        <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
-                            {{ __('Catégories') }}
-                        </x-nav-link>
-
                         <x-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
                             {{ __('Utilisateurs') }}
                         </x-nav-link>
@@ -80,6 +76,12 @@
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
+                        @if(auth()->user()->is_admin)
+                            <x-dropdown-link :href="route('admin.settings.index')">
+                                {{ __('Paramètres') }}
+                            </x-dropdown-link>
+                        @endif
+
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -126,10 +128,6 @@
                     {{ __('Missions') }}
                 </x-responsive-nav-link>
 
-                <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
-                    {{ __('Catégories') }}
-                </x-responsive-nav-link>
-
                 <x-responsive-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
                     {{ __('Utilisateurs') }}
                 </x-responsive-nav-link>
@@ -168,6 +166,12 @@
                 <x-responsive-nav-link :href="route('profile.edit')">
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
+
+                @if(auth()->user()->is_admin)
+                    <x-responsive-nav-link :href="route('admin.settings.index')">
+                        {{ __('Paramètres') }}
+                    </x-responsive-nav-link>
+                @endif
 
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">

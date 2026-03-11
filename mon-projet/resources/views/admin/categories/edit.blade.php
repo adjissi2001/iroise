@@ -4,7 +4,11 @@
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
             <h2 class="font-semibold text-xl text-gray-800">Modifier une catégorie</h2>
-            <p class="text-sm text-gray-500">ID: {{ $categorie->id_categorie }}</p>
+            <div class="mt-1">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                    ID #{{ $categorie->id_categorie }}
+                </span>
+            </div>
         </div>
 
         <a
@@ -77,6 +81,8 @@
                     <button
                         type="submit"
                         class="inline-flex items-center px-4 py-2 border border-red-200 rounded-md font-semibold text-xs text-red-700 uppercase tracking-widest hover:bg-red-50"
+                        title="Supprimer"
+                        aria-label="Supprimer"
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="w-5 h-5 mr-2">
                             <path d="M5.5 5.5A.5.5 0 0 1 6 6v8a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0A.5.5 0 0 1 8 6v8a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v8a.5.5 0 0 0 1 0V6z"/>

@@ -16,7 +16,10 @@
         @stack('styles')
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-hero">
+        <div
+            class="min-h-screen bg-hero"
+            style="background-image: linear-gradient(rgba(10, 15, 25, 0.35), rgba(10, 15, 25, 0.35)), url('{{ asset('images/ias-lampaul-2.jpg') }}');"
+        >
             @include('layouts.navigation')
 
             <!-- Page Heading -->

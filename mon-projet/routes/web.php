@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminMissionController;
 use App\Http\Controllers\AdminCategorieController;
+use App\Http\Controllers\AdminSettingsController;
 use App\Http\Controllers\ReferentController;
 use App\Http\Controllers\BenevolController;
 use App\Http\Controllers\BienvenueController;
@@ -93,6 +94,8 @@ Route::middleware(['auth', 'profile.validated', 'admin', 'no.cache'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
+        Route::get('/parametres', [AdminSettingsController::class, 'index'])->name('settings.index');
+
         Route::get('/categories', [AdminCategorieController::class, 'index'])->name('categories.index');
         Route::post('/categories', [AdminCategorieController::class, 'store'])->name('categories.store');
         Route::get('/categories/{id}/edit', [AdminCategorieController::class, 'edit'])->name('categories.edit');
