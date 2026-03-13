@@ -66,7 +66,16 @@ class BeneficiaireService
      */
     public function updateForUser(Authenticatable $user, int $beneficiaireId, array $data): bool
     {
-        $beneficiaire = $this->findForUser($user, $beneficiaireId);
+        $roleProfil = optional($user?->profil)->role;
+        
+        // Admin et référent peuvent modifier n'importe quel bénéficiaire
+        if ((bool)($user->is_admin ?? false) || in_array($roleProfil, ['referent', 'benevole'])) {
+            $beneficiaire = $this->findById($beneficiaireId);
+        } else {
+            // Bénévole simple : seulement ses propres bénéficiaires
+            $beneficiaire = $this->findForUser($user, $beneficiaireId);
+        }
+
         if (!$beneficiaire) {
             return false;
         }
@@ -79,6 +88,12 @@ class BeneficiaireService
      */
     public function deleteForUser(Authenticatable $user, int $beneficiaireId): bool
     {
+        // Empêche la suppression si le rôle est bénévole
+        $roleProfil = optional($user->profil)->role;
+        if ($roleProfil === 'benevole') {
+            return false;
+        }
+
         $beneficiaire = $this->findForUser($user, $beneficiaireId);
         if (!$beneficiaire) {
             return false;

@@ -32,6 +32,17 @@ class BeneficiaireController extends Controller
 
         return view('beneficiaire.index', compact('beneficiaires', 'segment', 'countLB', 'countLAB'));
     }
+            /**
+     * Affiche le formulaire d'édition d'un bénéficiaire
+     */
+    public function edit($id)
+    {
+        $beneficiaire = $this->beneficiaireService->findById((int) $id);
+        if (!$beneficiaire) {
+            return redirect()->back()->with('error', 'Bénéficiaire introuvable.');
+        }
+        return view('beneficiaire.edit', compact('beneficiaire'));
+    }
 
     /**
      * Affichage du détail d’un bénéficiaire
@@ -56,20 +67,30 @@ class BeneficiaireController extends Controller
     public function updateSql(Request $request, $id)
     {
         // Exemple de données à mettre à jour (adapter selon tes champs)
-        $data = $request->validate([
-            'nom' => ['required', 'string', 'max:100'],
-            'prenom' => ['required', 'string', 'max:100'],
-            'num_tel' => ['nullable', 'string', 'max:20'],
-            'date_naissance' => ['required', 'date'],
-        ]);
+            $data = $request->validate([
+                'nom' => ['required', 'string', 'max:100'],
+                'prenom' => ['required', 'string', 'max:100'],
+                'date_naissance' => ['required', 'date'],
+                'email' => ['nullable', 'email'],
+                'num_tel' => ['nullable', 'string', 'max:20'],
+                'num_fixe' => ['nullable', 'string', 'max:20'],
+                'code_postal' => ['nullable', 'string', 'max:20'],
+                'adresse' => ['nullable', 'string', 'max:255'],
+                'commune' => ['nullable', 'string', 'max:100'],
+                'contact_urgence' => ['nullable', 'string', 'max:100'],
+                'tel_contact_urgence' => ['nullable', 'string', 'max:20'],
+                'montant_cotisation' => ['nullable', 'numeric', 'min:0'],
+                'moyen_paiement' => ['nullable', 'string', 'max:50'],
+                'remarques' => ['nullable', 'string', 'max:1000'],
+            ]);
 
         $updated = $this->beneficiaireService->updateForUser(auth()->user(), (int) $id, $data);
 
         if (!$updated) {
-            return redirect()->back()->with('error', 'Bénéficiaire introuvable.');
+           return redirect()->back()->with('error', 'Bénéficiaire introuvable.');
         }
 
-        return redirect()->back()->with('success', 'Bénéficiaire mis à jour.');
+        return redirect()->route('beneficiaire.index')->with('success', 'Bénéficiaire mis à jour.');
     }
 
 
@@ -164,15 +185,20 @@ class BeneficiaireController extends Controller
                 'email' => ['nullable', 'email'],
                 'num_tel' => ['nullable', 'string', 'max:20'],
                 'num_fixe' => ['nullable', 'string', 'max:20'],
+                'code_postal' => ['nullable', 'string', 'max:20'],
+                'adresse' => ['nullable', 'string', 'max:255'],
+                'commune' => ['nullable', 'string', 'max:100'],
                 'contact_urgence' => ['nullable', 'string', 'max:100'],
                 'tel_contact_urgence' => ['nullable', 'string', 'max:20'],
                 'montant_cotisation' => ['nullable', 'numeric', 'min:0'],
                 'moyen_paiement' => ['nullable', 'string', 'max:50'],
+                'remarques' => ['nullable', 'string', 'max:1000'],
             ]);
 
             // Calculer l'âge à partir de la date de naissance
             $dateNaissance = \Carbon\Carbon::parse($request->date_naissance);
             $age = $dateNaissance->age;
+
 
             $this->beneficiaireService->createForUser(auth()->user(), [
                 'nom' => $request->nom,
@@ -182,12 +208,17 @@ class BeneficiaireController extends Controller
                 'email' => $request->email,
                 'num_tel' => $request->num_tel,
                 'num_fixe' => $request->num_fixe,
+                'code_postal' => $request->code_postal,
+                'adresse' => $request->adresse,
+                'commune' => $request->commune,
                 'contact_urgence' => $request->contact_urgence,
                 'tel_contact_urgence' => $request->tel_contact_urgence,
                 'montant_cotisation' => $request->montant_cotisation,
                 'moyen_paiement' => $request->moyen_paiement,
+                'remarques' => $request->remarques,
                 'actif' => 1,
             ]);
+
 
             return redirect()->route('beneficiaire.index')->with('success', 'Bénéficiaire ajouté avec succès.');
         }

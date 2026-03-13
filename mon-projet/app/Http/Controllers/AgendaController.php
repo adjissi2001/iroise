@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\CompteRenduController;
+use App\Mail\MissionRetraitMail;
+use App\Models\Beneficiaire;
 use App\Models\Mission;
 use App\Models\User;
 use App\Services\MissionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 
 class AgendaController extends Controller
@@ -36,11 +40,17 @@ class AgendaController extends Controller
                 ->get()
             : collect();
 
-        return view('agenda.index', compact('categories', 'isManager', 'benevoles'));
+        // List of bénéficiaires for the assignment dropdown
+        $beneficiaires = Beneficiaire::where('actif', 1)->orderBy('nom')->get();
+
+        return view('agenda.index', compact('categories', 'isManager', 'benevoles', 'beneficiaires'));
     }
 
     public function events(Request $request): JsonResponse
     {
+        // Auto-valider les missions dépassées
+        CompteRenduController::autoValidateMissions();
+
         $query = Mission::query();
 
         if ($request->has('start')) {
@@ -50,7 +60,7 @@ class AgendaController extends Controller
             $query->where('date_depart', '<=', Carbon::parse($request->end)->toDateString());
         }
 
-        $missions = $query->with('benevole.profil')->orderBy('date_depart', 'asc')->get();
+        $missions = $query->with(['benevole.profil', 'beneficiaires'])->orderBy('date_depart', 'asc')->get();
 
         $events = $missions->map(function (Mission $mission) {
             $start = $mission->date_depart;
@@ -64,14 +74,14 @@ class AgendaController extends Controller
             }
 
             $colors = [
-                'non_prise' => ['bg' => '#f97316', 'border' => '#ea580c'],
-                'prise'     => ['bg' => '#3b82f6', 'border' => '#2563eb'],
-                'validee'   => ['bg' => '#10b981', 'border' => '#059669'],
-                'annulee'   => ['bg' => '#ef4444', 'border' => '#dc2626'],
+                'non_prise' => ['bg' => '#fff7ed', 'border' => '#f97316', 'text' => '#1f2937'],
+                'prise'     => ['bg' => '#eff6ff', 'border' => '#3b82f6', 'text' => '#1f2937'],
+                'validee'   => ['bg' => '#ecfdf5', 'border' => '#10b981', 'text' => '#1f2937'],
+                'annulee'   => ['bg' => '#fdf2f8', 'border' => '#881337', 'text' => '#1f2937'],
             ];
 
             $etat = $mission->etat_mission ?? 'non_prise';
-            $color = $colors[$etat] ?? $colors['non_prise'];
+            $color = $colors[$etat] ?? $colors['non_prise']; 
             $isMine = $mission->benevole_id && $mission->benevole_id == auth()->id();
 
             return [
@@ -81,11 +91,12 @@ class AgendaController extends Controller
                 'end'             => $end,
                 'backgroundColor' => $color['bg'],
                 'borderColor'     => $color['border'],
-                'textColor'       => '#ffffff',
+                'textColor'       => $color['text'],
                 'extendedProps'   => [
                     'description'   => $mission->remarques ?? '',
                     'etat'          => $etat,
                     'lieu'          => $mission->nom_lieu ?? '',
+                    'commune'       => $mission->commune ?? '',
                     'heure_depart'  => $mission->heure_depart,
                     'heure_arrivee' => $mission->heure_arrivee,
                     'benevole_id'   => $mission->benevole_id,
@@ -96,6 +107,8 @@ class AgendaController extends Controller
                     'can_take'      => $etat === 'non_prise' && !$mission->benevole_id,
                     'id_categorie'  => $mission->id_categorie,
                     'cree_par'      => $mission->cree_par,
+                    'beneficiaire_ids' => $mission->beneficiaires->pluck('id_beneficiaire')->toArray(),
+                    'beneficiaire_names' => $mission->beneficiaires->map(fn($b) => $b->prenom . ' ' . $b->nom)->implode(', '),
                 ],
             ];
         });
@@ -111,15 +124,23 @@ class AgendaController extends Controller
 
         $validated = $request->validate([
             'categorie'     => 'nullable|integer',
+            'commune'       => 'nullable|string|max:100',
             'lieu'          => 'nullable|string|max:255',
             'date_depart'   => 'required|date',
             'heure_depart'  => 'nullable',
             'heure_arrivee' => 'nullable',
             'description'   => 'nullable|string',
-            'benevole_id'   => 'nullable|integer|exists:users,id',
+            'benevole_id'       => 'nullable|integer|exists:users,id',
+            'beneficiaire_ids'  => 'required|array|min:1',
+            'beneficiaire_ids.*'=> 'integer|exists:beneficiaire,id_beneficiaire',
         ]);
 
         $mission = $this->missionService->createForAdmin(auth()->user(), $validated);
+
+        // Attach bénéficiaires via pivot
+        if (!empty($validated['beneficiaire_ids'])) {
+            $mission->beneficiaires()->sync($validated['beneficiaire_ids']);
+        }
 
         // If a bénévole was assigned during creation
         if (!empty($validated['benevole_id'])) {
@@ -145,16 +166,24 @@ class AgendaController extends Controller
 
         $validated = $request->validate([
             'categorie'     => 'nullable|integer',
+            'commune'       => 'nullable|string|max:100',
             'lieu'          => 'nullable|string|max:255',
             'date_depart'   => 'nullable|date',
             'heure_depart'  => 'nullable',
             'heure_arrivee' => 'nullable',
             'description'   => 'nullable|string',
             'etat'          => 'required|in:non_prise,prise,validee,annulee',
-            'benevole_id'   => 'nullable|integer|exists:users,id',
+            'benevole_id'       => 'nullable|integer|exists:users,id',
+            'beneficiaire_ids'  => 'sometimes|array|min:1',
+            'beneficiaire_ids.*'=> 'integer|exists:beneficiaire,id_beneficiaire',
         ]);
 
         $this->missionService->updateForAdmin(auth()->user(), $mission, $validated);
+
+        // Sync bénéficiaires via pivot
+        if (isset($validated['beneficiaire_ids'])) {
+            $mission->beneficiaires()->sync($validated['beneficiaire_ids']);
+        }
 
         // Handle bénévole assignment
         if (array_key_exists('benevole_id', $validated)) {
@@ -212,9 +241,15 @@ class AgendaController extends Controller
             return response()->json(['error' => 'Vous ne pouvez pas retirer cette mission.'], 403);
         }
 
+        $benevole = auth()->user();
+
+        $mission->load('beneficiaires');
+
         $mission->benevole_id = null;
         $mission->etat_mission = 'non_prise';
         $mission->save();
+
+        Mail::to('adjissiahmed2001@gmail.com')->send(new MissionRetraitMail($benevole, $mission));
 
         return response()->json(['success' => 'Mission retirée.']);
     }

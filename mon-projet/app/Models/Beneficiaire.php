@@ -32,6 +32,10 @@ class Beneficiaire extends Model
         'tel_contact_urgence',
         'montant_cotisation',
         'moyen_paiement',
+        'code_postal',
+        'adresse',
+        'commune',
+        'remarques',
     ];
 
     /**

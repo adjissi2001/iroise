@@ -5,10 +5,13 @@ use App\Http\Controllers\BeneficiaireController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminMissionController;
+use App\Http\Controllers\AdminCategorieController;
+use App\Http\Controllers\AdminSettingsController;
 use App\Http\Controllers\ReferentController;
 use App\Http\Controllers\BenevolController;
 use App\Http\Controllers\BienvenueController;
 use App\Http\Controllers\AgendaController;
+use App\Http\Controllers\CompteRenduController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\EnsureUserIsAdminOrReferent;
 
@@ -45,6 +48,8 @@ Route::middleware(['auth', 'profile.validated'])->group(function () {
     // Détail d'un bénéficiaire
     Route::get('/beneficiaires/{id}', [BeneficiaireController::class, 'show'])->name('beneficiaire.show');
     
+    // Formulaire d'édition d'un bénéficiaire
+    Route::get('/beneficiaires/{id}/edit', [BeneficiaireController::class, 'edit'])->name('beneficiaire.edit');
     // Mise à jour d'un bénéficiaire
     Route::put('/beneficiaires/{id}', [BeneficiaireController::class, 'updateSql'])->name('beneficiaire.update');
     
@@ -107,7 +112,24 @@ Route::middleware(['auth', 'profile.validated'])->group(function () {
     Route::post('/agenda/missions/{id}/annuler', [AgendaController::class, 'annuler'])->name('agenda.annuler');
     Route::post('/agenda/missions/{id}/prendre', [AgendaController::class, 'prendre'])->name('agenda.prendre');
     Route::post('/agenda/missions/{id}/retirer', [AgendaController::class, 'retirer'])->name('agenda.retirer');
+
+    // Comptes rendus
+    Route::get('/compte-rendu', [CompteRenduController::class, 'index'])->name('compte-rendu.index');
+    Route::put('/compte-rendu/{id}', [CompteRenduController::class, 'update'])->name('compte-rendu.update');
 });
+// 📚 Catégories de mission (admin seulement)
+Route::middleware(['auth', 'profile.validated', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/parametres', [AdminSettingsController::class, 'index'])->name('settings.index');
+
+        Route::get('/categories', [AdminCategorieController::class, 'index'])->name('categories.index');
+        Route::post('/categories', [AdminCategorieController::class, 'store'])->name('categories.store');
+        Route::get('/categories/{id}/edit', [AdminCategorieController::class, 'edit'])->name('categories.edit');
+        Route::put('/categories/{id}', [AdminCategorieController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{id}', [AdminCategorieController::class, 'destroy'])->name('categories.destroy');
+    });
 
 // Routes d'authentification Breeze
 require __DIR__.'/auth.php';

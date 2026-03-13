@@ -20,6 +20,7 @@ class Mission extends Model
     protected $fillable = [
         'id_categorie',
         'nom_lieu',
+        'commune',
         'cree_par',
         'date_depart',
         'heure_depart',
@@ -38,5 +39,15 @@ class Mission extends Model
     public function benevole()
     {
         return $this->belongsTo(\App\Models\User::class, 'benevole_id');
+    }
+
+    public function beneficiaires()
+    {
+        return $this->belongsToMany(
+            \App\Models\Beneficiaire::class,
+            'mission_beneficiaire',
+            'id_mission',
+            'id_beneficiaire'
+        );
     }
 }

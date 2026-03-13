@@ -55,6 +55,22 @@
                     {{ $beneficiaire->date_naissance ? \Carbon\Carbon::parse($beneficiaire->date_naissance)->format('d/m/Y') : 'Non renseignée' }}
                 </p>
             </div>
+            <div>
+                <label class="block text-xs uppercase tracking-wider text-gray-500">adresse Postale</label>
+                <p class="mt-1 text-lg">{{ $beneficiaire->adresse ?? 'Non renseigné' }}</p>
+            </div>
+            <div>
+                <label class="block text-xs uppercase tracking-wider text-gray-500">Code Postale</label>
+                <p class="mt-1 text-lg">{{ $beneficiaire->code_postal ?? 'Non renseigné' }}</p>
+            </div>
+            <div>
+                <label class="block text-xs uppercase tracking-wider text-gray-500">Commune</label>
+                <p class="mt-1 text-lg">{{ $beneficiaire->Commune ?? 'Non renseigné' }}</p>
+            </div>
+            <div>
+                <label class="block text-xs uppercase tracking-wider text-gray-500">Remarques</label>
+                <p class="mt-1 text-lg">{{ $beneficiaire->remarques ?? 'Non renseigné' }}</p>
+            </div>
             @if($beneficiaire->date_naissance)
                 <div>
                     <label class="block text-xs uppercase tracking-wider text-gray-500">Âge</label>
@@ -67,6 +83,8 @@
             <div class="text-sm text-gray-500">
                 Créé le {{ \Carbon\Carbon::parse($beneficiaire->date_inscription ?? $beneficiaire->created_at)->format('d/m/Y H:i') }}
             </div>
+            @php $roleProfil = optional(auth()->user()->profil)->role; @endphp
+            @if($roleProfil !== 'benevole')
             <form action="{{ route('beneficiaire.destroy', $beneficiaire->id_beneficiaire) }}" method="POST"
                   onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce bénéficiaire ?');">
                 @csrf
@@ -76,6 +94,7 @@
                     <i class="fas fa-trash mr-2"></i> Supprimer
                 </button>
             </form>
+            @endif
         </div>
     </div>
 </x-app-layout>

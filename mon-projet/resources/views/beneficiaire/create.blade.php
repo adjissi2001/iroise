@@ -96,6 +96,9 @@
                             type="text" 
                             id="num_tel" 
                             name="num_tel" 
+                            maxlength="10"
+                            pattern="[0-9]{10}"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('num_tel') border-red-500 @enderror"
                             value="{{ old('num_tel') }}"
                             placeholder="Téléphone mobile"
@@ -114,6 +117,9 @@
                             type="text" 
                             id="num_fixe" 
                             name="num_fixe" 
+                            maxlength="10"
+                            pattern="[0-9]{10}"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('num_fixe') border-red-500 @enderror"
                             value="{{ old('num_fixe') }}"
                             placeholder="Téléphone fixe"
@@ -146,13 +152,16 @@
                         <label for="tel_contact_urgence" class="block font-medium text-sm text-gray-700">
                             {{ __('Téléphone Contact Urgence') }}
                         </label>
-                        <input 
+                       <input 
                             type="text" 
                             id="tel_contact_urgence" 
-                            name="tel_contact_urgence" 
+                            name="tel_contact_urgence"
+                            maxlength="10"
+                            pattern="[0-9]{10}"
                             class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('tel_contact_urgence') border-red-500 @enderror"
                             value="{{ old('tel_contact_urgence') }}"
                             placeholder="Téléphone du contact d'urgence"
+                            required
                         >
                         @error('tel_contact_urgence')
                             <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
@@ -200,15 +209,77 @@
                         @enderror
                     </div>
                 </div>
+                <!-- Code postal -->
+                <div>
+                    <label for="code_postal" class="block font-medium text-sm text-gray-700">Code postal</label>
+                   <input 
+                        type="text" 
+                        id="code_postal" 
+                        name="code_postal"
+                        maxlength="5"
+                        pattern="[0-9]{5}"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('code_postal') border-red-500 @enderror"
+                        value="{{ old('code_postal') }}"
+                        placeholder="Code postal"
+                    >
+                    @error('code_postal')
+                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+                <!-- Adresse -->
+                <div>
+                    <label for="adresse" class="block font-medium text-sm text-gray-700">Adresse</label>
+                    <input 
+                        type="text" 
+                        id="adresse" 
+                        name="adresse" 
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('adresse') border-red-500 @enderror"
+                        value="{{ old('adresse') }}"
+                        placeholder="Adresse du bénéficiaire"
+                    >
+                    @error('adresse')
+                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+                <!-- Commune -->
+                <div>
+                    <label for="commune" class="block font-medium text-sm text-gray-700">Commune</label>
+                    <input 
+                        type="text" 
+                        id="commune" 
+                        name="commune" 
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('commune') border-red-500 @enderror"
+                        value="{{ old('commune') }}"
+                        placeholder="Commune du bénéficiaire"
+                    >
+                    @error('commune')
+                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+                <!-- Remarques -->
+                <div class="md:col-span-2">
+                    <label for="remarques" class="block font-medium text-sm text-gray-700">Remarques</label>
+                    <textarea 
+                        id="remarques" 
+                        name="remarques" 
+                        rows="2"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 @error('remarques') border-red-500 @enderror"
+                        placeholder="Remarques éventuelles..."
+                    >{{ old('remarques') }}</textarea>
+                    @error('remarques')
+                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
 
                 <!-- Boutons d'action -->
                 <div class="flex justify-end gap-4 mt-8">
-                    <a href="{{ route('beneficiaire.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition">
+                    <a href="{{ route('beneficiaire.index') }}" class="inline-flex items-center px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl border border-gray-300 hover:bg-gray-200 transition font-medium">
                         {{ __('Annuler') }}
                     </a>
                     <button 
                         type="submit" 
-                        class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+                        class="inline-flex items-center px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl border border-gray-300 hover:bg-gray-200 transition font-medium"
                     >
                         <i class="fas fa-save mr-2"></i> {{ __('Ajouter') }}
                     </button>

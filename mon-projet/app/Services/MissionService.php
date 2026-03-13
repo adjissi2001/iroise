@@ -66,6 +66,11 @@ class MissionService
             }
         }
 
+        // commune
+        if (array_key_exists('commune', $data)) {
+            $payload['commune'] = $data['commune'];
+        }
+
         // description -> remarques
         if (array_key_exists('description', $data) && $data['description'] !== null) {
             if (Schema::hasColumn('mission', 'remarques') || Schema::hasColumn('missions', 'remarques')) {

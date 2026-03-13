@@ -90,41 +90,35 @@
                             {{ $beneficiaire->date_naissance ? \Carbon\Carbon::parse($beneficiaire->date_naissance)->format('d/m/Y') : 'N/A' }}
                         </td>
                         <td data-label="Actions">
+
                             <a href="{{ route('beneficiaire.show', $beneficiaire->id_beneficiaire) }}" 
                                class="action-btn btn-view"
                                title="Voir les détails">
                                 <i class="fas fa-eye"></i>
                             </a>
 
-                            @php
-                                $canToggle = (bool) (auth()->user()->is_admin ?? false)
-                                    || (int) ($beneficiaire->user_id ?? 0) === (int) (auth()->id() ?? 0);
-                                $isActive = (int) ($beneficiaire->actif ?? 1) === 1;
-                            @endphp
+                            @php $roleProfil = optional(auth()->user()->profil)->role; @endphp
+                            @if(auth()->user()->is_admin || $roleProfil === 'referent')
+                                <a href="{{ route('beneficiaire.edit', $beneficiaire->id_beneficiaire) }}"
+                                   class="action-btn btn-edit"
+                                   title="Modifier">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                            @endif
 
-                            @if($canToggle)
-                                <form action="{{ route('beneficiaire.toggleActif', $beneficiaire->id_beneficiaire) }}"
-                                      method="POST"
+                            @php $roleProfil = optional(auth()->user()->profil)->role; @endphp
+                            @if($roleProfil !== 'benevole')
+                                <form action="{{ route('beneficiaire.destroy', $beneficiaire->id_beneficiaire) }}" 
+                                      method="POST" 
                                       style="display: inline;"
-                                      onsubmit="return confirm('{{ $isActive ? 'Désactiver' : 'Activer' }} {{ $beneficiaire->prenom }} {{ $beneficiaire->nom }} ?');">
+                                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer {{ $beneficiaire->prenom }} {{ $beneficiaire->nom }} ?');">
                                     @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="action-btn btn-edit" title="{{ $isActive ? 'Désactiver' : 'Activer' }}">
-                                        <i class="fas {{ $isActive ? 'fa-user-slash' : 'fa-user-check' }}"></i>
+                                    @method('DELETE')
+                                    <button type="submit" class="action-btn btn-delete" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
                             @endif
-
-                            <form action="{{ route('beneficiaire.destroy', $beneficiaire->id_beneficiaire) }}" 
-                                  method="POST" 
-                                  style="display: inline;"
-                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer {{ $beneficiaire->prenom }} {{ $beneficiaire->nom }} ?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="action-btn btn-delete" title="Supprimer">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
                         </td>
                     </tr>
                 @endforeach
