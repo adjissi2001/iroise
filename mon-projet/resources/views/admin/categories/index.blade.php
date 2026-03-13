@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+
     <div class="flex justify-center items-start min-h-[80vh] py-10 px-2 bg-gradient-to-br from-blue-50/60 via-white/80 to-blue-100/60">
         <div class="w-full max-w-3xl bg-white/80 rounded-3xl shadow-xl border border-gray-100 px-0 pt-0 pb-10 flex flex-col gap-0">
             <div class="rounded-t-3xl bg-gradient-to-r from-blue-100/60 via-white/80 to-blue-50/60 px-12 py-8 border-b border-gray-100">
@@ -139,13 +140,12 @@
                             </div>
                         @endforeach
                     </div>
-
             <!-- Desktop: table -->
             <div class="hidden md:block overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <!-- Colonne ID supprimée -->
+
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                             <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -154,7 +154,6 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($categoriesList as $cat)
                             <tr class="hover:bg-gray-50">
-                                <!-- Cellule ID supprimée -->
                                 <td class="px-4 py-3 text-sm text-gray-900 font-medium">
                                     {{ $cat->nom_categorie ?? '-' }}
                                 </td>

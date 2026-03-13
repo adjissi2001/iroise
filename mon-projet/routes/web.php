@@ -23,17 +23,20 @@ Route::get('/bienvenue', [BienvenueController::class, 'index'])->name('bienvenue
 //  Dashboard (authentification requise)
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'profile.validated', 'verified'])->name('dashboard');
+})->middleware(['auth', 'profile.validated', 'verified', 'no.cache'])->name('dashboard');
 
 // 👤 Routes du profil utilisateur (authentification requise)
-Route::middleware(['auth', 'profile.validated'])->group(function () {
+Route::middleware(['auth', 'profile.validated', 'no.cache'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 //  Routes pour les bénéficiaires (authentification requise)
+
 Route::middleware(['auth', 'profile.validated'])->group(function () {
+=======
+
     // Liste des bénéficiaires
     Route::get('/beneficiaires', [BeneficiaireController::class, 'index'])->name('beneficiaire.index');
     
@@ -61,8 +64,10 @@ Route::middleware(['auth', 'profile.validated'])->group(function () {
         ->middleware([EnsureUserIsAdminOrReferent::class])
         ->name('admin.beneficiaires');
 
-    // Admin Missions (admin + référent)
-    Route::middleware(['profile.validated', EnsureUserIsAdminOrReferent::class])->prefix('admin')->name('admin.')->group(function () {
+
+    // Admin Missions (module séparé) — accessible aux admins ET référents
+    Route::middleware([EnsureUserIsAdminOrReferent::class])->prefix('admin')->name('admin.')->group(function () {
+
         Route::get('/missions', [AdminMissionController::class, 'index'])->name('missions.index');
         Route::post('/missions', [AdminMissionController::class, 'store'])->name('missions.store');
         Route::get('/missions/{mission}/edit', [AdminMissionController::class, 'edit'])->name('missions.edit');
@@ -72,7 +77,7 @@ Route::middleware(['auth', 'profile.validated'])->group(function () {
 });
 
 // 👥 Routes pour les utilisateurs (admin seulement)
-Route::middleware(['auth', 'profile.validated'])->group(function () {
+Route::middleware(['auth', 'profile.validated', 'no.cache'])->group(function () {
     // Liste des utilisateurs
     Route::get('/utilisateurs', [UserController::class, 'index'])->name('user.index');
     
@@ -81,7 +86,7 @@ Route::middleware(['auth', 'profile.validated'])->group(function () {
 });
 
 // Routes d'édition/suppression réservées aux administrateurs
-Route::middleware(['auth', 'profile.validated', 'admin'])->group(function () {
+Route::middleware(['auth', 'profile.validated', 'admin', 'no.cache'])->group(function () {
     Route::get('/utilisateurs/{id}/edit', [UserController::class, 'edit'])->name('user.edit');
     Route::put('/utilisateurs/{id}', [UserController::class, 'update'])->name('user.update');
     Route::delete('/utilisateurs/{id}', [UserController::class, 'destroy'])->name('user.destroy');
@@ -93,15 +98,33 @@ Route::middleware(['auth', 'profile.validated', 'admin'])->group(function () {
     Route::delete('/utilisateurs/pending/expired', [UserController::class, 'destroyExpiredPending'])->name('user.destroyExpiredPending');
 });
 
+// 📚 Catégories de mission (admin seulement)
+Route::middleware(['auth', 'profile.validated', 'admin', 'no.cache'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/parametres', [AdminSettingsController::class, 'index'])->name('settings.index');
+
+        Route::get('/categories', [AdminCategorieController::class, 'index'])->name('categories.index');
+        Route::post('/categories', [AdminCategorieController::class, 'store'])->name('categories.store');
+        Route::get('/categories/{id}/edit', [AdminCategorieController::class, 'edit'])->name('categories.edit');
+        Route::put('/categories/{id}', [AdminCategorieController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{id}', [AdminCategorieController::class, 'destroy'])->name('categories.destroy');
+    });
+
 // Routes pour l'espace référent (authentification requise)
-Route::middleware(['auth', 'profile.validated'])->group(function () {
+Route::middleware(['auth', 'profile.validated', 'no.cache'])->group(function () {
     // Espace référent
-    Route::get('/referent', [ReferentController::class, 'index'])->name('referent.index');
+    Route::get('/referent', [ReferentController::class, 'index'])
+        ->middleware(['role:referent'])
+        ->name('referent.index');
 });
 // Routes pour l'espace bénévole (authentification requise)
-Route::middleware(['auth', 'profile.validated'])->group(function () {
+Route::middleware(['auth', 'profile.validated', 'no.cache'])->group(function () {
     // Espace bénévole
-    Route::get('/benevole', [BenevolController::class, 'index'])->name('benevole.index');
+    Route::get('/benevole', [BenevolController::class, 'index'])
+        ->middleware(['role:benevole'])
+        ->name('benevole.index');
 });
 // Routes Agenda (accessible à tous les utilisateurs authentifiés)
 Route::middleware(['auth', 'profile.validated'])->group(function () {

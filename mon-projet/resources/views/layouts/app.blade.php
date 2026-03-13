@@ -15,11 +15,14 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @stack('styles')
     </head>
+
     <body class="font-sans antialiased" style="display:flex; flex-direction:column; min-height:100vh; margin:0;">
         <div style="flex:1; position:relative;">
             {{-- Background image flou --}}
             <div style="position:fixed; inset:0; z-index:-1; background-image:url('{{ asset('images/ias-lampaul-2.jpg') }}'); background-size:cover; background-position:center; background-repeat:no-repeat; filter:blur(4px); transform:scale(1.05);"></div>
             <div style="position:fixed; inset:0; z-index:-1; background:rgba(255,255,255,0.3);"></div>
+
+
             @include('layouts.navigation')
 
             <!-- Page Heading -->

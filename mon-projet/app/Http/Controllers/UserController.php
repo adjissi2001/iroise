@@ -50,14 +50,15 @@ class UserController extends Controller
         })->count();
 
         // LR/LAR (dans l'onglet "validés")
-        $lrReferents = $this->userService->listReferentsActifsValidated();
-        $larReferents = $this->userService->listAnciensReferentsValidated();
+        // LR = utilisateurs validés actifs, LAR = utilisateurs validés inactifs.
+        $lrUsers = $this->userService->listValidatedActifs();
+        $larUsers = $this->userService->listValidatedInactifs();
 
         return view('user.index', compact(
             'validatedUsers',
             'pendingUsers',
-            'lrReferents',
-            'larReferents',
+            'lrUsers',
+            'larUsers',
             'pendingExpirationMinutes',
             'pendingCutoff',
             'pendingExpiredCount'

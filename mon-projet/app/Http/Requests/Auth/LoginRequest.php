@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -41,7 +43,27 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        // If the account is still pending activation, the temporary password should only
+        // be usable for a limited time window. After that, login must be refused so the
+        // expiration concept keeps its meaning.
+        $email = (string) $this->input('email');
+        if ($email !== '') {
+            $user = User::query()->with('profil')->where('email', $email)->first();
+            if ($user && !$user->is_admin) {
+                $profil = $user->profil;
+                $isPendingActivation = $profil && isset($profil->est_valide) && !(bool) $profil->est_valide;
+
+                if ($isPendingActivation && $this->isActivationWindowExpired($user)) {
+                    throw ValidationException::withMessages([
+                        'email' => 'Compte expiré : le délai d\'activation est dépassé. Merci de contacter un administrateur pour renvoyer une activation.',
+                    ]);
+                }
+            }
+        }
+
+        // Security/UX: do not allow persistent "remember me" logins.
+        // Sessions should expire based on SESSION_LIFETIME / SESSION_EXPIRE_ON_CLOSE.
+        if (! Auth::attempt($this->only('email', 'password'), false)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -50,6 +72,39 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+    }
+
+    private function isActivationWindowExpired(User $user): bool
+    {
+        if (empty($user->created_at)) {
+            return false;
+        }
+
+        $now = Carbon::now();
+
+        // Activation link is implemented using the password reset broker.
+        $resetExpireMinutes = (int) config('auth.passwords.users.expire', 60);
+        if ($resetExpireMinutes <= 0) {
+            $resetExpireMinutes = 60;
+        }
+
+        // Pending account expiration window (if configured).
+        $pendingMinutes = (int) config('app.pending_user_expiration_minutes', 0);
+        if ($pendingMinutes <= 0) {
+            $pendingHours = (int) config('app.pending_user_expiration_hours', 48);
+            if ($pendingHours <= 0) {
+                $pendingHours = 48;
+            }
+            $pendingMinutes = $pendingHours * 60;
+        }
+
+        $activationWindowMinutes = min($resetExpireMinutes, $pendingMinutes);
+
+        try {
+            return Carbon::parse($user->created_at)->lessThanOrEqualTo($now->copy()->subMinutes($activationWindowMinutes));
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**

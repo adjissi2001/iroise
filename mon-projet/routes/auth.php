@@ -25,7 +25,12 @@ Route::middleware('guest')->group(function () {
 
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
         ->name('password.email');
+});
 
+// Password reset (also used as "activation" link for new accounts).
+// This must remain accessible even if another account is currently logged in
+// in the same browser. If the email differs, we log out the current session.
+Route::middleware(['no.cache', \App\Http\Middleware\LogoutIfDifferentResetEmail::class])->group(function () {
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
 
@@ -33,7 +38,7 @@ Route::middleware('guest')->group(function () {
         ->name('password.store');
 });
 
-Route::middleware(['auth', 'profile.validated'])->group(function () {
+Route::middleware(['auth', 'profile.validated', 'no.cache'])->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');
 
@@ -57,7 +62,7 @@ Route::middleware(['auth', 'profile.validated'])->group(function () {
 });
 
 // Registration routes accessible only to authenticated admin or referent users
-Route::middleware(['auth', 'profile.validated', \App\Http\Middleware\EnsureUserIsAdminOrReferent::class])->group(function () {
+Route::middleware(['auth', 'profile.validated', 'no.cache', \App\Http\Middleware\EnsureUserIsAdminOrReferent::class])->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
 

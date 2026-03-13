@@ -1,3 +1,4 @@
+```php
 @extends('layouts.app')
 
 @push('styles')
@@ -13,8 +14,9 @@
         </h2>
         @php
             $roleProfil = optional(auth()->user()->profil)->role;
+            $canCreateBeneficiaire = (bool) (auth()->user()->is_admin ?? false) || in_array($roleProfil, ['referent', 'benevole']);
         @endphp
-        @if(in_array($roleProfil, ['referent', 'benevole']))
+        @if($canCreateBeneficiaire)
             <a href="{{ route('beneficiaire.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition">
                 <i class="fas fa-plus mr-2"></i> Ajouter un bénéficiaire
             </a>
@@ -81,6 +83,13 @@
             </thead>
             <tbody>
                 @foreach($beneficiaires as $beneficiaire)
+                    @php
+                        $roleProfil = optional(auth()->user()->profil)->role;
+                        $isAdmin = auth()->user()->is_admin ?? false;
+                        $isReferent = $roleProfil === 'referent';
+                        $isProprietaire = (int) ($beneficiaire->user_id ?? 0) === (int) (auth()->id() ?? 0);
+                        $isActive = (int) ($beneficiaire->actif ?? 1) === 1;
+                    @endphp
                     <tr>
                         <td data-label="Nom">{{ $beneficiaire->nom }}</td>
                         <td data-label="Prénom">{{ $beneficiaire->prenom }}</td>
@@ -90,15 +99,13 @@
                             {{ $beneficiaire->date_naissance ? \Carbon\Carbon::parse($beneficiaire->date_naissance)->format('d/m/Y') : 'N/A' }}
                         </td>
                         <td data-label="Actions">
-
                             <a href="{{ route('beneficiaire.show', $beneficiaire->id_beneficiaire) }}" 
                                class="action-btn btn-view"
                                title="Voir les détails">
                                 <i class="fas fa-eye"></i>
                             </a>
 
-                            @php $roleProfil = optional(auth()->user()->profil)->role; @endphp
-                            @if(auth()->user()->is_admin || $roleProfil === 'referent')
+                            @if($isAdmin || $isReferent)
                                 <a href="{{ route('beneficiaire.edit', $beneficiaire->id_beneficiaire) }}"
                                    class="action-btn btn-edit"
                                    title="Modifier">
@@ -106,8 +113,20 @@
                                 </a>
                             @endif
 
-                            @php $roleProfil = optional(auth()->user()->profil)->role; @endphp
-                            @if($roleProfil !== 'benevole')
+                            @if($isAdmin || $isProprietaire)
+                                <form action="{{ route('beneficiaire.toggleActif', $beneficiaire->id_beneficiaire) }}"
+                                      method="POST"
+                                      style="display: inline;"
+                                      onsubmit="return confirm('{{ $isActive ? 'Désactiver' : 'Activer' }} {{ $beneficiaire->prenom }} {{ $beneficiaire->nom }} ?');">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="action-btn btn-edit" title="{{ $isActive ? 'Désactiver' : 'Activer' }}">
+                                        <i class="fas {{ $isActive ? 'fa-user-slash' : 'fa-user-check' }}"></i>
+                                    </button>
+                                </form>
+                            @endif
+
+                            @if($isAdmin || $isReferent)
                                 <form action="{{ route('beneficiaire.destroy', $beneficiaire->id_beneficiaire) }}" 
                                       method="POST" 
                                       style="display: inline;"

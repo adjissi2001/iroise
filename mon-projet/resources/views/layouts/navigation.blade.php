@@ -37,6 +37,20 @@
                             Compte rendu
                         </a>
 
+
+                        <x-nav-link :href="route('admin.missions.index')" :active="request()->routeIs('admin.missions.*')">
+                            {{ __('Missions') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
+                            {{ __('Utilisateurs') }}
+                        </x-nav-link>
+                        
+
+                      <!--  <x-nav-link :href="route('register')" :active="request()->routeIs('register')">
+                            {{ __('Ajouter un utilisateur') }}
+                        </x-nav-link> -->
+
                     @elseif($roleProfil === 'referent')
                         <a href="{{ route('admin.missions.index') }}" style="padding:0.45rem 0.85rem; border-radius:8px; font-size:0.88rem; font-weight:600; text-decoration:none; {{ request()->routeIs('admin.missions.*') ? 'background:rgba(255,255,255,0.2); color:#fff;' : 'color:rgba(255,255,255,0.75);' }}" onmouseover="this.style.background='rgba(255,255,255,0.1)';this.style.color='#fff'" onmouseout="this.style.background='{{ request()->routeIs('admin.missions.*') ? 'rgba(255,255,255,0.2)' : 'transparent' }}';this.style.color='{{ request()->routeIs('admin.missions.*') ? '#fff' : 'rgba(255,255,255,0.75)' }}';">
                             Missions
@@ -94,8 +108,36 @@
                             <svg style="width:18px; height:18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                             Déconnexion
                         </button>
+
                     </form>
                 </div>
+
+                    </x-slot>
+
+                    <x-slot name="content">
+                        <x-dropdown-link :href="route('profile.edit')">
+                            {{ __('Profile') }}
+                        </x-dropdown-link>
+
+                        @if(auth()->user()->is_admin)
+                            <x-dropdown-link :href="route('admin.settings.index')">
+                                {{ __('Paramètres') }}
+                            </x-dropdown-link>
+                        @endif
+
+                        <!-- Authentication -->
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+
+                            <x-dropdown-link :href="route('logout')"
+                                    onclick="event.preventDefault();
+                                                this.closest('form').submit();">
+                                {{ __('Log Out') }}
+                            </x-dropdown-link>
+                        </form>
+                    </x-slot>
+                </x-dropdown>
+
             </div>
 
             {{-- ═══ Hamburger (mobile) ═══ --}}
@@ -136,6 +178,7 @@
             @endif
         </div>
 
+
         {{-- Mobile user section --}}
         <div style="border-top:1px solid rgba(255,255,255,0.08); padding:0.75rem 1rem;">
             <div style="display:flex; align-items:center; gap:0.6rem; padding:0.5rem 1rem; margin-bottom:0.5rem;">
@@ -146,6 +189,36 @@
                     <div style="font-size:0.9rem; font-weight:700; color:#fff;">{{ Auth::user()->display_name }}</div>
                     <div style="font-size:0.78rem; color:rgba(255,255,255,0.5);">{{ Auth::user()->email }}</div>
                 </div>
+
+        <!-- Responsive Settings Options -->
+        <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
+            <div class="px-4">
+                <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->display_name }}</div>
+                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
+            </div>
+
+            <div class="mt-3 space-y-1">
+                <x-responsive-nav-link :href="route('profile.edit')">
+                    {{ __('Profile') }}
+                </x-responsive-nav-link>
+
+                @if(auth()->user()->is_admin)
+                    <x-responsive-nav-link :href="route('admin.settings.index')">
+                        {{ __('Paramètres') }}
+                    </x-responsive-nav-link>
+                @endif
+
+                <!-- Authentication -->
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+
+                    <x-responsive-nav-link :href="route('logout')"
+                            onclick="event.preventDefault();
+                                        this.closest('form').submit();">
+                        {{ __('Log Out') }}
+                    </x-responsive-nav-link>
+                </form>
+
             </div>
             <a href="{{ route('profile.edit') }}" style="display:block; padding:0.6rem 1rem; border-radius:8px; text-decoration:none; font-size:0.9rem; font-weight:500; color:rgba(255,255,255,0.7); margin-bottom:2px;">Mon profil</a>
             <form method="POST" action="{{ route('logout') }}">

@@ -117,6 +117,8 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
+        $mailSent = true;
+
         // Send activation email with temporary password + reset link
         try {
             $token = Password::broker()->createToken($user);
@@ -129,6 +131,7 @@ class RegisteredUserController extends Controller
                 loginUrl: $loginUrl,
             ));
         } catch (Throwable $e) {
+            $mailSent = false;
             Log::error('Failed to send new user activation email', [
                 'email' => $user?->email,
                 'error' => $e->getMessage(),
@@ -142,6 +145,13 @@ class RegisteredUserController extends Controller
         if (!$creatorCanManage) {
             Auth::login($user);
             return redirect(route('dashboard', absolute: false));
+        }
+
+        if (!$mailSent) {
+            return redirect()->route('user.index')->with(
+                'warning',
+                'Utilisateur créé avec succès, mais l\'email d\'activation n\'a pas pu être envoyé. Merci de vérifier la configuration mail et les logs (storage/logs/laravel.log).'
+            );
         }
 
         return redirect()->route('user.index')->with(
