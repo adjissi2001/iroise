@@ -7,9 +7,11 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminMissionController;
 use App\Http\Controllers\AdminCategorieController;
 use App\Http\Controllers\AdminSettingsController;
+use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\ReferentController;
 use App\Http\Controllers\BenevolController;
 use App\Http\Controllers\BienvenueController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\EnsureUserIsAdminOrReferent;
 
@@ -19,9 +21,9 @@ Route::get('/', [BienvenueController::class, 'index'])->name('home');
 Route::get('/bienvenue', [BienvenueController::class, 'index'])->name('bienvenue');
 
 //  Dashboard (authentification requise)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'profile.validated', 'verified', 'no.cache'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'profile.validated', 'verified'])
+    ->name('dashboard');
 
 // 👤 Routes du profil utilisateur (authentification requise)
 Route::middleware(['auth', 'profile.validated', 'no.cache'])->group(function () {
@@ -95,6 +97,8 @@ Route::middleware(['auth', 'profile.validated', 'admin', 'no.cache'])
     ->name('admin.')
     ->group(function () {
         Route::get('/parametres', [AdminSettingsController::class, 'index'])->name('settings.index');
+        
+        Route::get('/statistiques', [StatisticsController::class, 'index'])->name('statistics.index');
 
         Route::get('/categories', [AdminCategorieController::class, 'index'])->name('categories.index');
         Route::post('/categories', [AdminCategorieController::class, 'store'])->name('categories.store');
@@ -119,4 +123,3 @@ Route::middleware(['auth', 'profile.validated', 'no.cache'])->group(function () 
 });
 // Routes d'authentification Breeze
 require __DIR__.'/auth.php';
-

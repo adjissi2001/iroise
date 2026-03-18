@@ -35,4 +35,18 @@ return [
         ],
     ],
 
+    'twilio' => [
+        'account_sid' => env('TWILIO_ACCOUNT_SID'),
+        'auth_token' => env('TWILIO_AUTH_TOKEN'),
+        'from' => env('TWILIO_FROM'),
+    ],
+
+    'activation' => [
+        // SMS sending strategy for new user activation.
+        // - fallback: only send SMS when activation email throws an exception.
+        // - always: send SMS whenever a phone number is provided (recommended if you want
+        //           to cover post-SMTP bounces/undeliverable emails).
+        'sms_mode' => env('ACTIVATION_SMS_MODE', 'always'),
+    ],
+
 ];

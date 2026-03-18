@@ -32,15 +32,19 @@
                         <x-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
                             {{ __('Utilisateurs') }}
                         </x-nav-link>
+
+                        <x-nav-link :href="route('admin.statistics.index')" :active="request()->routeIs('admin.statistics.*')">
+                            {{ __('Statistiques') }}
+                        </x-nav-link>
                         
 
                       <!--  <x-nav-link :href="route('register')" :active="request()->routeIs('register')">
                             {{ __('Ajouter un utilisateur') }}
                         </x-nav-link> -->
                     @elseif($roleProfil === 'referent')
-                        <x-responsive-nav-link :href="route('admin.missions.index')" :active="request()->routeIs('admin.missions.*')">
+                        <x-nav-link :href="route('admin.missions.index')" :active="request()->routeIs('admin.missions.*')">
                             {{ __('Missions') }}
-                        </x-responsive-nav-link>
+                        </x-nav-link>
                         <x-nav-link :href="route('beneficiaire.index')" :active="request()->routeIs('beneficiaire.*')">
                             {{ __('Mes Bénéficiaires') }}
                         </x-nav-link>
@@ -130,10 +134,6 @@
 
                 <x-responsive-nav-link :href="route('user.index')" :active="request()->routeIs('user.*')">
                     {{ __('Utilisateurs') }}
-                </x-responsive-nav-link>
-
-                <x-responsive-nav-link :href="route('register')" :active="request()->routeIs('register')">
-                    {{ __('Ajouter un utilisateur') }}
                 </x-responsive-nav-link>
             @elseif($roleProfil === 'referent')
                 <x-responsive-nav-link :href="route('admin.beneficiaires')" :active="request()->routeIs('admin.beneficiaires')">

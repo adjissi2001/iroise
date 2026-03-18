@@ -7,6 +7,8 @@ use App\Mail\NewUserActivationMail;
 use App\Models\Profil;
 use App\Models\User;
 use App\Models\Voiture;
+use App\Services\Sms\TwilioSmsService;
+use App\Support\NewUserActivationMessage;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -85,9 +87,14 @@ class RegisteredUserController extends Controller
         $user = null;
 
         DB::transaction(function () use ($request, &$user, $temporaryPassword): void {
+            // Set temporary password expiration (use same expiration as password reset token, default 60 minutes)
+            $tempPasswordExpiresAt = now()->addMinutes((int) config('auth.passwords.users.expire', 60));
+            
             $user = User::create([
                 'email' => $request->email,
                 'password' => Hash::make($temporaryPassword),
+                'temp_password' => $temporaryPassword, // Store plain temporary password for verification
+                'temp_password_expires_at' => $tempPasswordExpiresAt,
                 'actif' => 1,
             ]);
 
@@ -118,8 +125,11 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         $mailSent = true;
+        $smsSent = false;
 
         // Send activation email with temporary password + reset link
+        $activationUrl = null;
+        $loginUrl = null;
         try {
             $token = Password::broker()->createToken($user);
             $activationUrl = url(route('password.reset', ['token' => $token, 'email' => $user->email], false));
@@ -138,6 +148,24 @@ class RegisteredUserController extends Controller
             ]);
         }
 
+        // Send the same activation info by SMS depending on strategy.
+        // NOTE: SMTP can accept an email that later bounces; use ACTIVATION_SMS_MODE=always
+        // if you want to reliably cover "undeliverable" email addresses.
+        $smsMode = (string) config('services.activation.sms_mode', 'fallback');
+        $shouldTrySms = $activationUrl
+            && ($smsMode === 'always' || ($smsMode === 'fallback' && !$mailSent));
+
+        if ($shouldTrySms) {
+            $user->loadMissing('profil');
+            $rawPhone = $user->profil?->num_tel;
+
+            if ($rawPhone) {
+                $smsBody = NewUserActivationMessage::toSms($activationUrl);
+
+                $smsSent = app(TwilioSmsService::class)->send($rawPhone, $smsBody);
+            }
+        }
+
         // Keep creator session if created by admin/referent
         $creator = auth()->user();
         $creatorCanManage = $creator && ($creator->is_admin || optional($creator->profil)->role === 'referent');
@@ -148,6 +176,13 @@ class RegisteredUserController extends Controller
         }
 
         if (!$mailSent) {
+            if ($smsSent) {
+                return redirect()->route('user.index')->with(
+                    'warning',
+                    'Utilisateur créé avec succès, mais l\'email d\'activation n\'a pas pu être envoyé. Un SMS contenant le même lien d\'activation a été envoyé au numéro de téléphone renseigné.'
+                );
+            }
+
             return redirect()->route('user.index')->with(
                 'warning',
                 'Utilisateur créé avec succès, mais l\'email d\'activation n\'a pas pu être envoyé. Merci de vérifier la configuration mail et les logs (storage/logs/laravel.log).'

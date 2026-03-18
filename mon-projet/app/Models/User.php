@@ -24,6 +24,8 @@ class User extends Authenticatable
         'password',
         'is_admin',
         'actif',
+        'temp_password',
+        'temp_password_expires_at',
     ];
 
     public function getPrenomAttribute($value)

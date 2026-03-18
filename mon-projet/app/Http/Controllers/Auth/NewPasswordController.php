@@ -47,6 +47,7 @@ class NewPasswordController extends Controller
         $request->validate([
             'token' => ['required'],
             'email' => ['required', 'email'],
+            'temp_password' => ['required', 'string'], // Temporary password verification
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -61,6 +62,24 @@ class NewPasswordController extends Controller
             }
         }
 
+        // Verify temporary password
+        if (!$user || !$user->temp_password) {
+            return back()->withInput($request->only('email'))
+                ->withErrors(['temp_password' => 'Mot de passe temporaire invalide ou expiré.']);
+        }
+
+        // Check if temp password is expired
+        if ($user->temp_password_expires_at && now()->isAfter($user->temp_password_expires_at)) {
+            return back()->withInput($request->only('email'))
+                ->withErrors(['temp_password' => 'Le mot de passe temporaire a expiré. Merci de contacter un administrateur.']);
+        }
+
+        // Verify the temporary password matches
+        if ($request->input('temp_password') !== $user->temp_password) {
+            return back()->withInput($request->only('email'))
+                ->withErrors(['temp_password' => 'Le mot de passe temporaire est incorrect.']);
+        }
+
         // Here we will attempt to reset the user's password. If it is successful we
         // will update the password on an actual user model and persist it to the
         // database. Otherwise we will parse the error and return the response.
@@ -70,6 +89,8 @@ class NewPasswordController extends Controller
                 $user->forceFill([
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),
+                    'temp_password' => null, // Clear temporary password after successful reset
+                    'temp_password_expires_at' => null,
                 ])->save();
 
                 // Activate the account after the password is set via the activation link.

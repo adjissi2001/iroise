@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\NewUserActivationMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -22,7 +23,7 @@ class NewUserActivationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Activation de votre compte",
+            subject: NewUserActivationMessage::subject(),
         );
     }
 

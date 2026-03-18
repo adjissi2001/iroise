@@ -12,6 +12,14 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
+        <!-- Temporary Password Verification -->
+        <div class="mt-4">
+            <x-input-label for="temp_password" value="Mot de passe temporaire" />
+            <p class="text-sm text-gray-600 mb-2">Veuillez entrer le mot de passe temporaire reçu par email ou SMS.</p>
+            <x-text-input id="temp_password" class="block mt-1 w-full" type="text" name="temp_password" required autocomplete="off" placeholder="Mot de passe temporaire" />
+            <x-input-error :messages="$errors->get('temp_password')" class="mt-2" />
+        </div>
+
         <!-- Password -->
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />
